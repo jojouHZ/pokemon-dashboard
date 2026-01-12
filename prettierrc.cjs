@@ -1,4 +1,3 @@
-// .prettierrc.cjs
 module.exports = {
   semi: true,
   singleQuote: false,

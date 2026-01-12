@@ -1,9 +1,16 @@
 <template>
-  <Radar v-if="chartData.datasets[0].data.length" :data="chartData" :options="chartOptions" />
+  <div class="radar-container">
+    <Radar v-if="chartData.datasets[0].data.length" :data="chartData" :options="chartOptions" />
+
+    <!-- Tooltip при наведении -->
+    <div v-if="hoveredStat" class="radar-container__tooltip">
+      <PokemonStatTooltip :description="hoveredStat.description" :value="hoveredStat.value" />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import {
   Chart,
   RadialLinearScale,
@@ -17,6 +24,8 @@ import {
 } from 'chart.js'
 import { Radar } from 'vue-chartjs'
 import type { PokemonStat } from '@/types/pokemon'
+import { STAT_DESCRIPTIONS } from '@/data/pokemonStatsGuide'
+import PokemonStatTooltip from './PokemonStatTooltip.vue'
 
 Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
 
@@ -24,8 +33,15 @@ const props = defineProps<{
   stats: PokemonStat[]
 }>()
 
+const hoveredStat = ref<{ description: (typeof STAT_DESCRIPTIONS)[string]; value: number } | null>(
+  null,
+)
+
 const chartData = computed<ChartData<'radar'>>(() => ({
-  labels: props.stats.map((s) => s.label),
+  labels: props.stats.map((s) => {
+    const key = s.label.toLowerCase().replace(' ', '-')
+    return STAT_DESCRIPTIONS[key]?.shortName || s.label
+  }),
   datasets: [
     {
       label: 'Base stat',
@@ -49,6 +65,18 @@ const chartOptions = computed<ChartOptions<'radar'>>(() => ({
     },
     tooltip: {
       enabled: true,
+      callbacks: {
+        label: function (context) {
+          const idx = context.dataIndex
+          const stat = props.stats[idx]
+          const key = stat.label.toLowerCase().replace(' ', '-')
+          hoveredStat.value = {
+            description: STAT_DESCRIPTIONS[key],
+            value: stat.value,
+          }
+          return `${stat.label}: ${stat.value}`
+        },
+      },
     },
   },
   scales: {
@@ -75,9 +103,17 @@ const chartOptions = computed<ChartOptions<'radar'>>(() => ({
 </script>
 
 <style scoped>
-:host,
-div {
+.radar-container {
+  position: relative;
   width: 100%;
   height: 100%;
+}
+
+.radar-container__tooltip {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 220px;
+  z-index: 10;
 }
 </style>

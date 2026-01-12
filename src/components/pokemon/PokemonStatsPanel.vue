@@ -1,6 +1,6 @@
 <template>
-  <div class="stats-panel">
-    <div class="stats-panel__header">
+  <article class="stats-panel">
+    <header class="stats-panel__header">
       <h3 class="stats-panel__title">Base stats</h3>
       <div class="stats-panel__tabs">
         <button
@@ -14,9 +14,13 @@
           {{ view.label }}
         </button>
       </div>
-    </div>
+    </header>
 
-    <div class="stats-panel__body">
+    <section class="stats-panel__body">
+      <div v-if="currentView === 'archetype'" class="stats-panel__archetype">
+        <PokemonArchetype :archetype="detectedArchetype" />
+      </div>
+
       <div v-if="currentView === 'radar'" class="stats-panel__chart">
         <PokemonStatsRadar :stats="stats" />
       </div>
@@ -28,16 +32,18 @@
       <div v-else class="stats-panel__placeholder">
         <p>Summary placeholder</p>
       </div>
-    </div>
-  </div>
+    </section>
+  </article>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { PokemonStat } from '@/types/pokemon'
-import PokemonStatsRadar from './PokemonStatsRadar.vue'
+import { detectArchetype } from '@/data/pokemonStatsGuide'
+import PokemonArchetype from './PokemonArchetype.vue'
+import PokemonStatsRadar from '@/components/pokemon/PokemonStatsRadar.vue'
 
-type ViewId = 'radar' | 'bars' | 'summary'
+type ViewId = 'radar' | 'bars' | 'summary' | 'archetype'
 
 const props = defineProps<{
   stats: PokemonStat[]
@@ -47,12 +53,21 @@ const views: { id: ViewId; label: string }[] = [
   { id: 'radar', label: 'Radar' },
   { id: 'bars', label: 'Bars' },
   { id: 'summary', label: 'Summary' },
+  { id: 'archetype', label: 'Archetype' },
 ]
 
 const currentView = ref<ViewId>('radar')
 
-// чтобы TS не ругался на неиспользуемый props сейчас
-console.log(props.stats)
+const statsMap = computed(() => {
+  const map: Record<string, number> = {}
+  props.stats.forEach((s) => {
+    const key = s.label.toLowerCase().replace(' ', '-')
+    map[key] = s.value
+  })
+  return map
+})
+
+const detectedArchetype = computed(() => detectArchetype(statsMap.value))
 </script>
 
 <style scoped lang="scss">
