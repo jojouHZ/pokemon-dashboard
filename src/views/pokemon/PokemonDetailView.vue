@@ -45,10 +45,15 @@ const statsMap = computed(() => {
     const key = s.label.toLowerCase().replace(' ', '-')
     map[key] = s.value
   })
+
   return map
 })
 
-const archetype = computed(() => (store.current ? detectArchetype(statsMap.value) : null))
+const archetype = computed(() => {
+  const result = store.current ? detectArchetype(statsMap.value) : null
+
+  return result
+})
 
 onMounted(() => {
   store.loadPokemon('pikachu')

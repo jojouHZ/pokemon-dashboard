@@ -85,19 +85,34 @@ export const ARCHETYPES: PokemonArchetype[] = [
 ]
 
 export function detectArchetype(stats: Record<string, number>): PokemonArchetype | null {
-  const atk = stats['attack'] || 0
-  const def = stats['defense'] || 0
-  const spAtk = stats['special-attack'] || 0
-  const spd = stats['speed'] || 0
-  const hp = stats['hp'] || 0
+  const hp = stats['hp'] ?? 0
+  const atk = stats['attack'] ?? 0
+  const def = stats['defense'] ?? 0
+  const spAtk = stats['special-attack'] ?? 0
+  const spDef = stats['special-defense'] ?? 0
+  const spd = stats['speed'] ?? 0
 
-  const a0 = ARCHETYPES[0]
-  const a1 = ARCHETYPES[1]
-  const a2 = ARCHETYPES[2]
+  if (!hp && !atk && !def && !spAtk && !spDef && !spd) {
+    return null
+  }
 
-  if (atk >= 100 && spd >= 90 && def <= 80 && a0) return a0
-  if (hp >= 100 && def >= 100 && atk <= 80 && a1) return a1
-  if (spAtk >= 100 && spd >= 90 && a2) return a2
+  const allStats = [hp, atk, def, spAtk, spDef, spd]
+  const average = allStats.reduce((a, b) => a + b, 0) / allStats.length
 
-  return null
+  const getDeviation = (stat: number): number => {
+    if (average === 0) return 0
+    return ((stat - average) / average) * 100
+  }
+
+  const hpDev = getDeviation(hp)
+  const atkDev = getDeviation(atk)
+  const defDev = getDeviation(def)
+  const spAtkDev = getDeviation(spAtk)
+  const spDefDev = getDeviation(spDef)
+  const spdDev = getDeviation(spd)
+
+  if (atkDev > 5 && spdDev > 5 && defDev < -5) return ARCHETYPES[0] ?? null
+  if (hpDev > 5 && (defDev > 5 || spDefDev > 5) && atkDev < 0) return ARCHETYPES[1] ?? null
+  if (spAtkDev > 5 && spdDev > 5) return ARCHETYPES[2] ?? null
+  return ARCHETYPES[3] ?? null
 }
