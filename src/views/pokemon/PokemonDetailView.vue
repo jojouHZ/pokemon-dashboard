@@ -27,6 +27,7 @@
 import { onMounted, computed } from 'vue'
 import { usePokemonStore } from '@/stores/pokemonStore'
 import { detectArchetype } from '@/data/pokemonStatsGuide'
+import type { PokemonStat } from '@/types/pokemon'
 import PokemonDetailCard from '@/components/pokemon/PokemonDetailCard.vue'
 import PokemonStatsPanel from '@/components/pokemon/PokemonStatsPanel.vue'
 import PokemonArchetypeTile from '@/components/pokemon/PokemonArchetypeTile.vue'
@@ -40,17 +41,14 @@ const statsMap = computed(() => {
 
   if (!current) return map
 
-  store.current.stats.forEach((s) => {
+  store.current?.stats?.forEach((s: PokemonStat) => {
     const key = s.label.toLowerCase().replace(' ', '-')
     map[key] = s.value
   })
   return map
 })
 
-const archetype = computed(() => {
-  const hasStats = Object.keys(statsMap.value).length > 0
-  return hasStats ? detectArchetype(statsMap.value) : null
-})
+const archetype = computed(() => (store.current ? detectArchetype(statsMap.value) : null))
 
 onMounted(() => {
   store.loadPokemon('pikachu')

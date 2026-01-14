@@ -1,9 +1,5 @@
 <template>
-  <div>
-    <PokemonDetailCard />
-  </div>
+  <div></div>
 </template>
 
-<script setup lang="ts">
-import PokemonDetailCard from "@/components/pokemon/PokemonDetailCard.vue";
-</script>
+<script setup lang="ts"></script>
