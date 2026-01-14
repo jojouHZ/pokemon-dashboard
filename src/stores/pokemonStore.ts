@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { fetchPokemonByName } from '@/services/pokemonApiClient'
+import { fetchPokemonByName, fetchPokemonSpecies } from '@/services/pokemonApiClient'
+import type { PokemonSpecies } from '@/services/pokemonApiClient'
 import type { Pokemon } from '@/types/pokemon'
 
 export const usePokemonStore = defineStore('pokemon', () => {
   const current = ref<Pokemon | null>(null)
+  const species = ref<PokemonSpecies | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -13,10 +15,17 @@ export const usePokemonStore = defineStore('pokemon', () => {
     error.value = null
 
     try {
-      current.value = await fetchPokemonByName(name)
+      const [pokemonData, speciesData] = await Promise.all([
+        fetchPokemonByName(name),
+        fetchPokemonSpecies(name),
+      ])
+
+      current.value = pokemonData
+      species.value = speciesData
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
       current.value = null
+      species.value = null
     } finally {
       loading.value = false
     }
@@ -24,6 +33,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
 
   return {
     current,
+    species,
     loading,
     error,
     loadPokemon,

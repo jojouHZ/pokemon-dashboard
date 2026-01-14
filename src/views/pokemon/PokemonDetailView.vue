@@ -8,7 +8,15 @@
 
     <div v-else-if="store.current" class="pokemon-detail__content">
       <PokemonDetailCard :pokemon="store.current" />
-      <PokemonStatsPanel :stats="store.current.stats" />
+
+      <div class="pokemon-detail__stats-row">
+        <PokemonStatsPanel :stats="store.current.stats" />
+        <PokemonArchetypeTile :archetype="archetype" />
+      </div>
+
+      <div class="pokemon-detail__info-row">
+        <PokedexDescriptionTile :species="store.species" />
+      </div>
     </div>
 
     <div v-else class="pokemon-detail__empty">No Pokemon loaded</div>
@@ -16,15 +24,36 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { usePokemonStore } from '@/stores/pokemonStore'
+import { detectArchetype } from '@/data/pokemonStatsGuide'
 import PokemonDetailCard from '@/components/pokemon/PokemonDetailCard.vue'
 import PokemonStatsPanel from '@/components/pokemon/PokemonStatsPanel.vue'
+import PokemonArchetypeTile from '@/components/pokemon/PokemonArchetypeTile.vue'
+import PokedexDescriptionTile from '@/components/pokemon/PokedexDescriptionTile.vue'
 
 const store = usePokemonStore()
 
+const statsMap = computed(() => {
+  const map: Record<string, number> = {}
+  const current = store.current
+
+  if (!current) return map
+
+  store.current.stats.forEach((s) => {
+    const key = s.label.toLowerCase().replace(' ', '-')
+    map[key] = s.value
+  })
+  return map
+})
+
+const archetype = computed(() => {
+  const hasStats = Object.keys(statsMap.value).length > 0
+  return hasStats ? detectArchetype(statsMap.value) : null
+})
+
 onMounted(() => {
-  store.loadPokemon('Bulbasaur')
+  store.loadPokemon('pikachu')
 })
 </script>
 
@@ -33,27 +62,23 @@ onMounted(() => {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-
-  &__loading,
-  &__error,
-  &__empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 400px;
-    font-size: 16px;
-    color: rgba(148, 163, 184, 0.9);
-  }
-
-  &__error {
-    color: #ff6b6b;
-  }
+  gap: 20px;
 
   &__content {
     display: flex;
     flex-direction: column;
     gap: 16px;
   }
+
+  &__stats-row {
+    display: flex;
+    gap: 16px;
+    min-height: 200px; // фиксированная высота для рядов
+  }
+}
+.pokemon-detail__info-row {
+  display: flex;
+  gap: 16px;
+  height: 120px;
 }
 </style>

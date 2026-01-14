@@ -17,10 +17,6 @@
     </header>
 
     <section class="stats-panel__body">
-      <div v-if="currentView === 'archetype'" class="stats-panel__archetype">
-        <PokemonArchetype :archetype="detectedArchetype" />
-      </div>
-
       <div v-if="currentView === 'radar'" class="stats-panel__chart">
         <PokemonStatsRadar :stats="stats" />
       </div>
@@ -37,37 +33,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import type { PokemonStat } from '@/types/pokemon'
-import { detectArchetype } from '@/data/pokemonStatsGuide'
-import PokemonArchetype from './PokemonArchetype.vue'
 import PokemonStatsRadar from '@/components/pokemon/PokemonStatsRadar.vue'
 
-type ViewId = 'radar' | 'bars' | 'summary' | 'archetype'
+type ViewId = 'radar' | 'bars' | 'summary'
 
 const props = defineProps<{
   stats: PokemonStat[]
 }>()
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const statsLength = props.stats.length
+
 const views: { id: ViewId; label: string }[] = [
   { id: 'radar', label: 'Radar' },
   { id: 'bars', label: 'Bars' },
   { id: 'summary', label: 'Summary' },
-  { id: 'archetype', label: 'Archetype' },
 ]
 
 const currentView = ref<ViewId>('radar')
-
-const statsMap = computed(() => {
-  const map: Record<string, number> = {}
-  props.stats.forEach((s) => {
-    const key = s.label.toLowerCase().replace(' ', '-')
-    map[key] = s.value
-  })
-  return map
-})
-
-const detectedArchetype = computed(() => detectArchetype(statsMap.value))
 </script>
 
 <style scoped lang="scss">

@@ -1,3 +1,9 @@
+export interface PokemonArchetype {
+  name: string
+  description: string
+  indicators: string[]
+}
+
 export interface StatDescription {
   name: string
   shortName: string
@@ -28,7 +34,7 @@ export const STAT_DESCRIPTIONS: Record<string, StatDescription> = {
   'special-attack': {
     name: 'Special Attack',
     shortName: 'SP.ATK',
-    description: 'Спецатака; влияет на урон специальных (магических/энергетических) приёмов.',
+    description: 'Спецатака; влияет на урон специальных приёмов.',
     impact: 'Определяет мощь специальных приёмов',
   },
   'special-defense': {
@@ -40,73 +46,43 @@ export const STAT_DESCRIPTIONS: Record<string, StatDescription> = {
   speed: {
     name: 'Speed',
     shortName: 'SPD',
-    description: 'Скорость; определяет порядок хода в бою (кто атакует первым при прочих равных).',
+    description: 'Скорость; определяет порядок хода в бою.',
     impact: 'Влияет на инициативу в бою',
   },
 }
 
-export interface PokemonArchetype {
-  name: string
-  description: string
-  indicators: string[]
-  strengths: string[]
-  weaknesses: string[]
-}
-
 export const ARCHETYPES: PokemonArchetype[] = [
   {
-    name: 'Физический дамагер (Glass Cannon)',
+    name: 'Физический дамагер',
     description: 'Высокая атака и скорость, низкая защита',
-    indicators: ['Высокий Attack', 'Высокий Speed', 'Низкий Defense/Sp.Def'],
-    strengths: ['Быстро наносит мощные удары', 'Может победить врага до контрудара'],
-    weaknesses: ['Не переживет несколько попаданий', 'Требует правильного позиционирования'],
+    indicators: ['Высокий ATK', 'Высокий SPD', 'Низкий DEF'],
   },
   {
-    name: 'Танк/Стоун-волл',
+    name: 'Танк',
     description: 'Высокое HP и защита, низкая атака',
-    indicators: ['Высокий HP', 'Высокий Defense/Sp.Def', 'Низкий Attack/Sp.Atk'],
-    strengths: ['Может поглотить много урона', 'Отлично работает в защите'],
-    weaknesses: ['Медленно наносит урон', 'Может застрять в боях'],
+    indicators: ['Высокий HP', 'Высокий DEF/SP.DEF'],
   },
   {
     name: 'Специальный спидстер',
-    description: 'Высокая спецатака и скорость',
-    indicators: ['Высокая Special Attack', 'Высокая Speed', 'Низкий Attack'],
-    strengths: ['Атакует специальными приемами до хода противника', 'Игнорирует физическую защиту'],
-    weaknesses: ['Уязвим к специальным атакам', 'Может быть замедлен'],
+    description: 'Спецатака и скорость',
+    indicators: ['Высокий SP.ATK', 'Высокий SPD'],
   },
   {
-    name: 'Сбалансированный персонаж',
+    name: 'Сбалансированный',
     description: 'Равномерное распределение статов',
-    indicators: ['Все статы примерно на одном уровне'],
-    strengths: ['Универсален в различных ситуациях', 'Хорошая гибкость в тактике'],
-    weaknesses: ['Не имеет явного приоритета', 'Уступает специалистам в их сфере'],
+    indicators: ['Все статы средние'],
   },
 ]
 
-export function detectArchetype(stats: Record<string, number>): PokemonArchetype | null {
+export function detectArchetype(stats: Record<string, number>): PokemonArchetype {
   const atk = stats['attack'] || 0
   const def = stats['defense'] || 0
   const spAtk = stats['special-attack'] || 0
-  const spDef = stats['special-defense'] || 0
   const spd = stats['speed'] || 0
   const hp = stats['hp'] || 0
 
-  // Физический дамагер
-  if (atk > 100 && spd > 90 && def < 80 && spDef < 80) {
-    return ARCHETYPES[0]
-  }
-
-  // Танк
-  if (hp > 100 && (def > 100 || spDef > 100) && atk < 80 && spAtk < 80) {
-    return ARCHETYPES[1]
-  }
-
-  // Специальный спидстер
-  if (spAtk > 100 && spd > 90 && atk < 80) {
-    return ARCHETYPES[2]
-  }
-
-  // Сбалансированный (по умолчанию)
+  if (atk >= 100 && spd >= 90 && def <= 80) return ARCHETYPES[0]
+  if (hp >= 100 && def >= 100 && atk <= 80) return ARCHETYPES[1]
+  if (spAtk >= 100 && spd >= 90) return ARCHETYPES[2]
   return ARCHETYPES[3]
 }
