@@ -1,3 +1,4 @@
+// Перемести сюда существующие типы из pokemon.ts
 export interface Pokemon {
   id: number
   name: string
@@ -11,8 +12,8 @@ export interface Pokemon {
 export type StatKey = 'hp' | 'attack' | 'defense' | 'special-attack' | 'special-defense' | 'speed'
 
 export type PokemonStat = {
-  label: string // "HP", "Attack", ...
-  value: number // base_stat from PokeAPI
+  label: string
+  value: number
 }
 
 export type PokemonTypeName =

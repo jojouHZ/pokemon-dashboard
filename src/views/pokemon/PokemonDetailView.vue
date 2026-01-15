@@ -15,7 +15,7 @@
       </div>
 
       <div class="pokemon-detail__info-row">
-        <PokedexDescriptionTile :species="store.species" />
+        <PokemonDescriptionTile :species="store.species" />
       </div>
     </div>
 
@@ -28,10 +28,12 @@ import { onMounted, computed } from 'vue'
 import { usePokemonStore } from '@/stores/pokemonStore'
 import { detectArchetype } from '@/data/pokemonStatsGuide'
 import type { PokemonStat } from '@/types/pokemon'
-import PokemonDetailCard from '@/components/pokemon/PokemonDetailCard.vue'
-import PokemonStatsPanel from '@/components/pokemon/PokemonStatsPanel.vue'
-import PokemonArchetypeTile from '@/components/pokemon/PokemonArchetypeTile.vue'
-import PokedexDescriptionTile from '@/components/pokemon/PokedexDescriptionTile.vue'
+import {
+  PokemonDetailCard,
+  PokemonStatsPanel,
+  PokemonArchetypeTile,
+  PokemonDescriptionTile,
+} from '@/components/pokemon'
 
 const store = usePokemonStore()
 

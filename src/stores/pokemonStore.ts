@@ -9,6 +9,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
   const species = ref<PokemonSpecies | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const totalPokemonCount = ref(905) // future: fetch & count
 
   async function loadPokemon(name: string) {
     loading.value = true
@@ -37,5 +38,6 @@ export const usePokemonStore = defineStore('pokemon', () => {
     loading,
     error,
     loadPokemon,
+    totalPokemonCount,
   }
 })

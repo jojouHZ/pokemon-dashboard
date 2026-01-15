@@ -97,3 +97,46 @@ export async function fetchPokemonSpecies(name: string): Promise<PokemonSpecies>
     throw new Error(`Failed to fetch species data for "${name}": ${error}`)
   }
 }
+
+import type { PokemonListItem, PokemonListResponse } from '@/types/pokemon'
+
+export async function fetchPokemonList(
+  limit: number = 20,
+  offset: number = 0,
+): Promise<PokemonListResponse> {
+  try {
+    const { data } = await axiosInstance.get<PokemonListResponse>(
+      `/pokemon?limit=${limit}&offset=${offset}`,
+    )
+    return data
+  } catch (error) {
+    throw new Error(`Failed to fetch pokemon list: ${error}`)
+  }
+}
+
+interface PokeAPISummaryResponse {
+  id: number
+  name: string
+  sprites: {
+    front_default: string | null
+  }
+  types: Array<{
+    type: {
+      name: string
+    }
+  }>
+}
+
+export async function fetchPokemonSummary(url: string): Promise<PokemonListItem> {
+  try {
+    const { data } = await axiosInstance.get<PokeAPISummaryResponse>(url)
+    return {
+      id: data.id,
+      name: data.name,
+      image: data.sprites.front_default || '',
+      types: data.types.map((t) => t.type.name),
+    }
+  } catch (error) {
+    throw new Error(`Failed to fetch pokemon summary: ${error}`)
+  }
+}

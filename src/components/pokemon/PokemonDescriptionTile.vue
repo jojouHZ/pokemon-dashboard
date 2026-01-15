@@ -1,14 +1,14 @@
 <template>
-  <div v-if="species" class="pokedex-tile">
-    <div class="pokedex-tile__header">
-      <h4 class="pokedex-tile__title">Pokedex Entry</h4>
+  <div v-if="species" class="pokemon-tile">
+    <div class="pokemon-tile__header">
+      <h4 class="pokemon-tile__title">Pokemon Entry</h4>
     </div>
 
-    <p class="pokedex-tile__description">"{{ species.description }}"</p>
+    <p class="pokemon-tile__description">"{{ species.description }}"</p>
 
-    <div class="pokedex-tile__genus">
-      <span class="pokedex-tile__label">Genus:</span>
-      <span class="pokedex-tile__value">{{ species.genus }}</span>
+    <div class="pokemon-tile__genus">
+      <span class="pokemon-tile__label">Genus:</span>
+      <span class="pokemon-tile__value">{{ species.genus }}</span>
     </div>
   </div>
 </template>
@@ -22,7 +22,7 @@ defineProps<{
 </script>
 
 <style scoped lang="scss">
-.pokedex-tile {
+.pokemon-tile {
   border-radius: 12px;
   padding: 16px;
   background: rgba(15, 23, 42, 0.85);
