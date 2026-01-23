@@ -9,6 +9,17 @@
     </header>
 
     <main class="pokemon-dashboard__main">
+      <!-- Search & Filter Controls -->
+      <PokemonControls
+        :search-query="listStore.searchQuery"
+        :selected-type="listStore.selectedType"
+        :total-results="listStore.totalResults"
+        @search="listStore.setSearchQuery"
+        @filter="listStore.setSelectedType"
+        @clear="listStore.clearFilters"
+      />
+
+      <!-- Pokemon List -->
       <PokemonList />
     </main>
   </div>
@@ -17,10 +28,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePokemonStore } from '@/stores/pokemonStore'
-import { PokemonList } from '@/components/pokemon'
+import { usePokemonListStore } from '@/stores/pokemonListStore'
+import { PokemonControls, PokemonList } from '@/components/pokemon'
 
 const store = usePokemonStore()
-const totalPokemonCount = computed(() => store.totalPokemonCount || 905)
+const listStore = usePokemonListStore()
+
+const totalPokemonCount = computed(() => store.totalPokemonCount || 1292)
 </script>
 
 <style scoped lang="scss">
@@ -66,16 +80,5 @@ const totalPokemonCount = computed(() => store.totalPokemonCount || 905)
 .pokemon-dashboard__emoji {
   font-size: 2.5rem;
   display: inline-block;
-}
-
-.pokemon-dashboard__header-title h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #56bdf8 0%, #3b82f6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0;
-  letter-spacing: -0.02em;
 }
 </style>
