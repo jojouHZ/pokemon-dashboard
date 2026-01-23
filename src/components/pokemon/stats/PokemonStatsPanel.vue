@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { PokemonStat } from '@/types/pokemon'
-import PokemonStatsRadar from '@/components/pokemon/PokemonStatsRadar.vue'
+import PokemonStatsRadar from './PokemonStatsRadar.vue'
 
 type ViewId = 'radar' | 'bars' | 'summary'
 

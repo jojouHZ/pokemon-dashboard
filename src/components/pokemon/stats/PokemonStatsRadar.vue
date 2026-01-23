@@ -27,7 +27,7 @@ import { Radar } from 'vue-chartjs'
 import type { PokemonStat } from '@/types/pokemon'
 import { STAT_DESCRIPTIONS } from '@/data/pokemonStatsGuide'
 import type { StatDescription } from '@/data/pokemonStatsGuide'
-import PokemonStatTooltip from './PokemonStatTooltip.vue'
+import { PokemonStatTooltip } from '..'
 
 Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
 

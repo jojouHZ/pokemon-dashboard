@@ -1,27 +1,27 @@
 <template>
   <div class="pokemon-list">
     <!-- Loading state -->
-    <div v-if="loading" class="pokemon-list__loading">
+    <div v-if="listStore.loading" class="pokemon-list__loading">
       <div class="spinner"></div>
       <p>Loading Pokémon...</p>
     </div>
 
     <!-- Error state -->
-    <div v-else-if="error" class="pokemon-list__error">
-      <p>❌ {{ error }}</p>
-      <button @click="fetchPokemonListInternal" class="pokemon-list__retry">Try Again</button>
+    <div v-else-if="listStore.error" class="pokemon-list__error">
+      <p>❌ {{ listStore.error }}</p>
+      <button @click="listStore.loadPokemonList()" class="pokemon-list__retry">Try Again</button>
     </div>
 
     <!-- Empty state -->
-    <div v-else-if="displayedPokemon.length === 0" class="pokemon-list__empty">
+    <div v-else-if="listStore.displayedPokemon.length === 0" class="pokemon-list__empty">
       <p>No Pokémon found</p>
     </div>
 
     <!-- Main grid -->
     <div v-else>
       <div class="pokemon-list__grid">
-        <PokemonListItemComponent
-          v-for="pokemon in displayedPokemon"
+        <PokemonListItem
+          v-for="pokemon in listStore.displayedPokemon"
           :key="pokemon.id"
           :pokemon="pokemon"
           @select="selectPokemon"
@@ -29,10 +29,10 @@
       </div>
 
       <!-- Modern Pagination -->
-      <div v-if="totalCount > limit" class="pokemon-list__pagination">
+      <div v-if="listStore.totalResults > listStore.itemsPerPage" class="pokemon-list__pagination">
         <button
-          @click="changePage(-1)"
-          :disabled="currentPage === 1"
+          @click="listStore.setPage(listStore.currentPage - 1)"
+          :disabled="listStore.currentPage === 1"
           class="pagination-btn pagination-btn--prev"
         >
           ← Previous
@@ -40,37 +40,48 @@
 
         <div class="pagination-pages">
           <!-- First page -->
-          <button v-if="currentPage > 3" @click="goToPage(1)" class="pagination-page">1</button>
+          <button
+            v-if="listStore.currentPage > 3"
+            @click="listStore.setPage(1)"
+            class="pagination-page"
+          >
+            1
+          </button>
 
           <!-- Ellipsis -->
-          <span v-if="currentPage > 4" class="pagination-ellipsis">...</span>
+          <span v-if="listStore.currentPage > 4" class="pagination-ellipsis">...</span>
 
           <!-- Around current page -->
           <button
             v-for="page in paginationRange"
             :key="page"
-            @click="goToPage(page)"
-            :class="['pagination-page', { 'pagination-page--active': page === currentPage }]"
+            @click="listStore.setPage(page)"
+            :class="[
+              'pagination-page',
+              { 'pagination-page--active': page === listStore.currentPage },
+            ]"
           >
             {{ page }}
           </button>
 
           <!-- Ellipsis -->
-          <span v-if="currentPage < totalPages - 3" class="pagination-ellipsis">...</span>
+          <span v-if="listStore.currentPage < listStore.totalPages - 3" class="pagination-ellipsis"
+            >...</span
+          >
 
           <!-- Last page -->
           <button
-            v-if="currentPage < totalPages - 2"
-            @click="goToPage(totalPages)"
+            v-if="listStore.currentPage < listStore.totalPages - 2"
+            @click="listStore.setPage(listStore.totalPages)"
             class="pagination-page"
           >
-            {{ totalPages }}
+            {{ listStore.totalPages }}
           </button>
         </div>
 
         <button
-          @click="changePage(1)"
-          :disabled="currentPage === totalPages"
+          @click="listStore.setPage(listStore.currentPage + 1)"
+          :disabled="listStore.currentPage === listStore.totalPages"
           class="pagination-btn pagination-btn--next"
         >
           Next →
@@ -79,39 +90,31 @@
 
       <!-- Page info -->
       <div class="pagination-info">
-        Page {{ currentPage }} of {{ totalPages }} • Showing {{ (currentPage - 1) * limit + 1 }}-{{
-          Math.min(currentPage * limit, totalCount)
+        Page {{ listStore.currentPage }} of {{ listStore.totalPages }} • Showing
+        {{ (listStore.currentPage - 1) * listStore.itemsPerPage + 1 }}-{{
+          Math.min(listStore.currentPage * listStore.itemsPerPage, listStore.totalResults)
         }}
-        of {{ totalCount }} Pokémon
+        of {{ listStore.totalResults }} Pokémon
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import type { PokemonListItem } from '@/types/pokemon'
-import { fetchPokemonList, fetchPokemonSummary } from '@/services/pokemonApiClient'
-import { PokemonListItemComponent } from '@/components/pokemon'
+import { computed } from 'vue'
+import type { PokemonListItem as PokemonListItemType } from '@/types/pokemon'
+import { usePokemonListStore } from '@/stores/pokemonListStore'
+import { PokemonListItem } from '@/components/pokemon/list'
 import { useRouter } from 'vue-router'
 
-const loading = ref(false)
-const error = ref<string | null>(null)
-const pokemonList = ref<PokemonListItem[]>([])
-const totalCount = ref(0)
+const listStore = usePokemonListStore()
+const router = useRouter()
 
-// 20 pokemon per page (5-6 cards per row on desktop)
-const limit = 20
-const currentPage = ref(1)
-
-const totalPages = computed(() => Math.ceil(totalCount.value / limit))
-const displayedPokemon = computed(() => pokemonList.value)
-
-// Pagination range (e.g., [3, 4, 5, 6, 7] wenn current = 5)
+// Pagination range (e.g., [3, 4, 5, 6, 7] when current = 5)
 const paginationRange = computed(() => {
   const range: number[] = []
-  const start = Math.max(1, currentPage.value - 2)
-  const end = Math.min(totalPages.value, currentPage.value + 2)
+  const start = Math.max(1, listStore.currentPage - 2)
+  const end = Math.min(listStore.totalPages, listStore.currentPage + 2)
 
   for (let i = start; i <= end; i++) {
     range.push(i)
@@ -119,56 +122,9 @@ const paginationRange = computed(() => {
   return range
 })
 
-const fetchPokemonListInternal = async () => {
-  loading.value = true
-  error.value = null
-
-  try {
-    const offset = (currentPage.value - 1) * limit
-    const response = await fetchPokemonList(limit, offset)
-
-    totalCount.value = response.count
-
-    pokemonList.value = await Promise.all(
-      response.results.map(async (item: { name: string; url: string }) => {
-        const summary = await fetchPokemonSummary(item.url)
-        return summary
-      }),
-    )
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to load Pokémon'
-    pokemonList.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-const changePage = (delta: number) => {
-  const newPage = currentPage.value + delta
-  if (newPage >= 1 && newPage <= totalPages.value) {
-    currentPage.value = newPage
-    fetchPokemonListInternal()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-}
-
-const goToPage = (page: number) => {
-  if (page !== currentPage.value && page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
-    fetchPokemonListInternal()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-}
-
-const router = useRouter()
-
-const selectPokemon = (pokemon: PokemonListItem) => {
+const selectPokemon = (pokemon: PokemonListItemType) => {
   router.push(`/pokemon/${pokemon.name}`)
 }
-
-onMounted(() => {
-  fetchPokemonListInternal()
-})
 </script>
 
 <style scoped lang="scss">
@@ -232,7 +188,6 @@ onMounted(() => {
   }
 }
 
-// Grid: 5-6 columns on desktop, responsive smaller
 .pokemon-list__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -240,7 +195,6 @@ onMounted(() => {
   padding: 0;
 }
 
-// Modern Pagination
 .pokemon-list__pagination {
   display: flex;
   align-items: center;
