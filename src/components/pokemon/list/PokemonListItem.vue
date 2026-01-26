@@ -78,14 +78,14 @@ const getTypeStyle = (type: string) => {
 .pokemon-list-item {
   cursor: pointer;
   border-radius: 14px;
-  padding: 14px;
+  padding: 12px;
   background: rgba(15, 23, 42, 0.85);
   border: 1px solid rgba(148, 163, 184, 0.25);
   transition: all 0.25s ease;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 
   &:hover {
     background: rgba(30, 64, 175, 0.25);
@@ -97,62 +97,43 @@ const getTypeStyle = (type: string) => {
   &:active {
     transform: translateY(-1px);
   }
+
+  @media (max-width: 768px) {
+    padding: 10px;
+    gap: 6px;
+  }
 }
 
 .pokemon-list-item__image-wrapper {
   width: 100%;
-  height: 100px;
+  height: 90px;
   border-radius: 10px;
   background: rgba(148, 163, 184, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 768px) {
+    height: 80px;
+  }
 }
 
 .pokemon-list-item__image {
-  width: 70px;
-  height: 70px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
-}
 
-.pokemon-list-item__content {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.pokemon-list-item__id {
-  font-size: 11px;
-  color: rgba(148, 163, 184, 0.65);
-  font-family: 'Courier New', monospace;
-  align-self: flex-end;
-  font-weight: 500;
+  @media (max-width: 768px) {
+    width: 56px;
+    height: 56px;
+  }
 }
 
 .pokemon-list-item__name {
-  font-size: 16px;
-  font-weight: 600;
-  color: #e5e7eb;
-  text-align: center;
-  line-height: 1.2;
-}
+  font-size: 15px;
 
-.pokemon-list-item__types {
-  display: flex;
-  gap: 5px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.pokemon-list-item__type {
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--type-color);
-  color: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  text-transform: capitalize;
-  white-space: nowrap;
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 }
 </style>

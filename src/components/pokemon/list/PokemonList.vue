@@ -18,7 +18,7 @@
     </div>
 
     <!-- Main grid -->
-    <div v-else>
+    <div v-else class="pokemon-list__content">
       <div class="pokemon-list__grid">
         <PokemonListItem
           v-for="pokemon in listStore.displayedPokemon"
@@ -131,7 +131,17 @@ const selectPokemon = (pokemon: PokemonListItemType) => {
 .pokemon-list {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    gap: 14px;
+  }
+}
+.pokemon-list__content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .pokemon-list__loading,
@@ -141,134 +151,51 @@ const selectPokemon = (pokemon: PokemonListItemType) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 40px;
+  padding: 60px 24px;
   color: rgba(148, 163, 184, 0.8);
-  font-size: 16px;
-}
+  font-size: 15px;
 
-.pokemon-list__loading p,
-.pokemon-list__error p,
-.pokemon-list__empty p {
-  margin: 0;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(148, 163, 184, 0.2);
-  border-top: 3px solid #56bdf8;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.pokemon-list__retry {
-  margin-top: 16px;
-  padding: 10px 20px;
-  background: rgba(56, 189, 248, 0.2);
-  border: 1px solid rgba(56, 189, 248, 0.5);
-  color: #56bdf8;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(56, 189, 248, 0.3);
+  @media (max-width: 768px) {
+    padding: 40px 16px;
+    font-size: 14px;
   }
 }
 
 .pokemon-list__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  padding: 0;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  padding: 4px 0 8px;
 }
 
 .pokemon-list__pagination {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  padding: 24px 0;
+  gap: 14px;
+  padding: 16px 0 8px;
   flex-wrap: wrap;
 }
 
 .pagination-btn {
-  padding: 10px 18px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  color: rgba(148, 163, 184, 0.95);
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: rgba(56, 189, 248, 0.2);
-    border-color: rgba(56, 189, 248, 0.6);
-    color: #56bdf8;
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-}
-
-.pagination-pages {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+  padding: 8px 14px;
+  font-size: 13px;
 }
 
 .pagination-page {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  color: rgba(148, 163, 184, 0.9);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(56, 189, 248, 0.2);
-    border-color: rgba(56, 189, 248, 0.6);
-    color: #56bdf8;
-  }
-
-  &--active {
-    background: rgba(56, 189, 248, 0.4);
-    border-color: rgba(56, 189, 248, 0.8);
-    color: #56bdf8;
-    font-weight: 600;
-  }
-}
-
-.pagination-ellipsis {
-  color: rgba(148, 163, 184, 0.6);
-  font-size: 14px;
+  width: 36px;
+  height: 36px;
+  font-size: 13px;
 }
 
 .pagination-info {
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   color: rgba(148, 163, 184, 0.7);
-  padding: 0 16px;
+  padding: 0 12px 8px;
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+  }
 }
 </style>
