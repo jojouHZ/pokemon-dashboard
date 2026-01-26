@@ -1,4 +1,3 @@
-// Перемести сюда существующие типы из pokemon.ts
 export interface Pokemon {
   id: number
   name: string

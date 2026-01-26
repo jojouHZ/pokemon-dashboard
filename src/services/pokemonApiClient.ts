@@ -8,6 +8,7 @@ const axiosInstance = axios.create({
   timeout: 5000,
 })
 
+/* Pokemon By Name */
 interface PokeAPIResponse {
   id: number
   name: string
@@ -30,7 +31,7 @@ interface PokeAPIResponse {
   }>
 }
 
-export async function fetchPokemonByName(name: string): Promise<Pokemon> {
+export async function getPokemonByName(name: string): Promise<Pokemon> {
   try {
     const { data } = await axiosInstance.get<PokeAPIResponse>(`/pokemon/${name.toLowerCase()}`)
 
@@ -57,6 +58,7 @@ export async function fetchPokemonByName(name: string): Promise<Pokemon> {
   }
 }
 
+/* Pokemon Species */
 interface PokeAPISpeciesResponse {
   flavor_text_entries: Array<{
     flavor_text: string
@@ -74,19 +76,16 @@ export interface PokemonSpecies {
   genus: string
 }
 
-export async function fetchPokemonSpecies(name: string): Promise<PokemonSpecies> {
+export async function getPokemonSpecies(name: string): Promise<PokemonSpecies> {
   try {
     const { data } = await axiosInstance.get<PokeAPISpeciesResponse>(
       `/pokemon-species/${name.toLowerCase()}`,
     )
-
     const engDesc = data.flavor_text_entries.find(
       (entry) => entry.language.name === 'en' && entry.version.name === 'ultra-sun',
     )
     const ruDesc = data.flavor_text_entries.find((entry) => entry.language.name === 'ru')
-
     const description = ruDesc?.flavor_text || engDesc?.flavor_text || 'Описание недоступно'
-
     const genus = data.genera.find((g) => g.language.name === 'en')?.genus || 'Неизвестно'
 
     return {
@@ -98,9 +97,10 @@ export async function fetchPokemonSpecies(name: string): Promise<PokemonSpecies>
   }
 }
 
+/* List of pokemons */
 import type { PokemonListItem, PokemonListResponse } from '@/types/pokemon'
 
-export async function fetchPokemonList(
+export async function getPokemonList(
   limit: number = 20,
   offset: number = 0,
 ): Promise<PokemonListResponse> {
@@ -114,6 +114,7 @@ export async function fetchPokemonList(
   }
 }
 
+/* Pokemon Summary */
 interface PokeAPISummaryResponse {
   id: number
   name: string
@@ -127,7 +128,7 @@ interface PokeAPISummaryResponse {
   }>
 }
 
-export async function fetchPokemonSummary(url: string): Promise<PokemonListItem> {
+export async function getPokemonSummary(url: string): Promise<PokemonListItem> {
   try {
     const { data } = await axiosInstance.get<PokeAPISummaryResponse>(url)
     return {

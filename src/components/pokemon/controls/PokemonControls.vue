@@ -117,9 +117,14 @@ const capitalize = (str: string) => {
 .pokemon-controls {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px 0;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  gap: 10px;
+  padding: 8px 0 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+
+  @media (max-width: 768px) {
+    padding: 6px 0 10px;
+    gap: 8px;
+  }
 }
 
 .pokemon-controls__wrapper {
@@ -128,15 +133,19 @@ const capitalize = (str: string) => {
   align-items: center;
   flex-wrap: wrap;
 
+  @media (max-width: 1024px) {
+    gap: 10px;
+  }
+
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 10px;
+    align-items: stretch;
   }
 }
 
 .pokemon-controls__search {
   flex: 1;
-  min-width: 200px;
+  min-width: 220px;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -152,13 +161,13 @@ const capitalize = (str: string) => {
 }
 
 .pokemon-controls__clear-btn {
-  padding: 10px 16px;
+  padding: 9px 14px;
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.4);
   color: #ef4444;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -170,11 +179,12 @@ const capitalize = (str: string) => {
 
   @media (max-width: 768px) {
     width: 100%;
+    text-align: center;
   }
 }
 
 .pokemon-controls__info {
-  font-size: 14px;
+  font-size: 13px;
   color: rgba(148, 163, 184, 0.8);
   font-weight: 500;
 }
@@ -189,17 +199,17 @@ const capitalize = (str: string) => {
 
 .pokemon-controls__active-filters {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
   align-items: center;
 }
 
 .pokemon-controls__filter-badge {
-  padding: 6px 12px;
+  padding: 4px 10px;
   background: rgba(56, 189, 248, 0.15);
   border: 1px solid rgba(56, 189, 248, 0.3);
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   color: rgba(56, 189, 248, 0.95);
 }
 </style>
