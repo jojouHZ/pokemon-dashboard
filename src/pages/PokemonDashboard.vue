@@ -23,6 +23,16 @@
       <section class="pokemon-dashboard__content">
         <PokemonList />
       </section>
+      <section>
+        <!-- Pagination -->
+        <PokemonPagination
+          :current-page="listStore.currentPage"
+          :total-pages="listStore.totalPages"
+          :total-items="listStore.totalResults"
+          :items-per-page="listStore.itemsPerPage"
+          @page-change="listStore.setPage"
+        ></PokemonPagination>
+      </section>
     </main>
   </div>
 </template>
@@ -31,7 +41,7 @@
 import { computed } from 'vue'
 import { usePokemonStore } from '@/stores/pokemonStore'
 import { usePokemonListStore } from '@/stores/pokemonListStore'
-import { PokemonControls, PokemonList } from '@/components/pokemon'
+import { PokemonControls, PokemonList, PokemonPagination } from '@/components/pokemon'
 
 const store = usePokemonStore()
 const listStore = usePokemonListStore()
