@@ -2,14 +2,15 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getPokemonListFull } from '@/services/pokemon'
 import type { Pokemon } from '@/types/pokemon'
+import { ITEMS_PER_PAGE, CURRENT_PAGE_INITIAL } from '@/constants'
 
 export const usePokemonListStore = defineStore('pokemonList', () => {
   // State
   const pokemonList = ref<Pokemon[]>([])
   const searchQuery = ref('')
   const selectedType = ref<string | null>(null)
-  const currentPage = ref(1)
-  const itemsPerPage = ref(20)
+  const currentPage = ref(CURRENT_PAGE_INITIAL.DEFAULT)
+  const itemsPerPage = ref(ITEMS_PER_PAGE.DEFAULT)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -31,18 +32,18 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
 
   function setSearchQuery(query: string) {
     searchQuery.value = query.toLowerCase()
-    currentPage.value = 1
+    currentPage.value = CURRENT_PAGE_INITIAL.DEFAULT
   }
 
   function setSelectedType(type: string | null) {
     selectedType.value = type
-    currentPage.value = 1
+    currentPage.value = CURRENT_PAGE_INITIAL.DEFAULT
   }
 
   function clearFilters() {
     searchQuery.value = ''
     selectedType.value = null
-    currentPage.value = 1
+    currentPage.value = CURRENT_PAGE_INITIAL.DEFAULT
   }
 
   function setPage(page: number) {

@@ -3,7 +3,7 @@
     <div class="pokemon-controls__wrapper">
       <!-- Search Input -->
       <div class="pokemon-controls__search">
-        <SearchInput v-model="localSearch" @update:model-value="handleSearch" />
+        <SearchInput v-model="localSearch" />
       </div>
 
       <!-- Type Filter -->
@@ -47,6 +47,9 @@
 import { ref, computed, watch } from 'vue'
 import SearchInput from './SearchInput.vue'
 import TypeFilter from './TypeFilter.vue'
+import { DEBOUNCE_DELAYS } from '@/constants'
+
+import { useDebounce } from '@/composables/useDebounce'
 
 interface Props {
   searchQuery: string
@@ -63,12 +66,14 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Local state for search (for debouncing)
 const localSearch = ref(props.searchQuery)
 const selectedType = ref(props.selectedType)
-let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
-// Watch prop changes
+const debouncedSearch = useDebounce(localSearch, DEBOUNCE_DELAYS.SEARCH)
+watch(debouncedSearch, (newValue) => {
+  emit('search', newValue)
+})
+
 watch(
   () => props.searchQuery,
   (newVal) => {
@@ -82,18 +87,6 @@ watch(
     selectedType.value = newVal
   },
 )
-
-const handleSearch = (query: string) => {
-  // Clear previous debounce
-  if (debounceTimer) {
-    clearTimeout(debounceTimer)
-  }
-
-  // Debounce search (300ms)
-  debounceTimer = setTimeout(() => {
-    emit('search', query)
-  }, 300)
-}
 
 const handleTypeChange = (type: string | null) => {
   selectedType.value = type
