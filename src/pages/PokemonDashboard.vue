@@ -48,9 +48,16 @@ const store = usePokemonStore()
 const listStore = usePokemonListStore()
 const { itemsPerPage } = useResponsivePagination()
 
-watch(itemsPerPage, (newValue) => {
-  listStore.setItemsPerPage(newValue)
-})
+// Set initial value
+listStore.setItemsPerPage(itemsPerPage.value)
+// Watch for changes
+watch(
+  itemsPerPage,
+  (newValue) => {
+    listStore.setItemsPerPage(newValue)
+  },
+  { immediate: true },
+)
 
 const totalPokemonCount = computed(() => store.totalPokemonCount)
 </script>
