@@ -10,7 +10,7 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
   const searchQuery = ref('')
   const selectedType = ref<string | null>(null)
   const currentPage = ref(CURRENT_PAGE_INITIAL.DEFAULT)
-  const itemsPerPage = ref(ITEMS_PER_PAGE.DEFAULT)
+  const itemsPerPage = ref<number>(ITEMS_PER_PAGE.DEFAULT)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -48,6 +48,11 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
 
   function setPage(page: number) {
     currentPage.value = page
+  }
+
+  function setItemsPerPage(items: number) {
+    itemsPerPage.value = items
+    currentPage.value = CURRENT_PAGE_INITIAL.DEFAULT
   }
 
   // Getters
@@ -111,5 +116,6 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
     setSelectedType,
     clearFilters,
     setPage,
+    setItemsPerPage,
   }
 })

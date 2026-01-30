@@ -38,15 +38,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { usePokemonStore } from '@/stores/pokemonStore'
 import { usePokemonListStore } from '@/stores/pokemonListStore'
 import { PokemonControls, PokemonList, PokemonPagination } from '@/components/pokemon'
+import { useResponsivePagination } from '@/composables/useResponsivePagination'
 
 const store = usePokemonStore()
 const listStore = usePokemonListStore()
+const { itemsPerPage } = useResponsivePagination()
 
-const totalPokemonCount = computed(() => store.totalPokemonCount || 1292)
+watch(itemsPerPage, (newValue) => {
+  listStore.setItemsPerPage(newValue)
+})
+
+const totalPokemonCount = computed(() => store.totalPokemonCount)
 </script>
 
 <style scoped lang="scss">

@@ -33,7 +33,7 @@ export const ITEMS_PER_PAGE = {
 } as const
 
 /**
- * Min width breakpoints for responsive pagination (px)
+ * Min width breakpoints (px)
  */
 export const PAGINATION_BREAKPOINTS = {
   DESKTOP: 1024,
