@@ -1,5 +1,5 @@
 <template>
-  <div class="pokemon-list-item" @click="$emit('select', pokemon)">
+  <div class="pokemon-list-item" @click="emit('select', pokemon)">
     <div class="pokemon-list-item__image-wrapper">
       <img
         :src="pokemon.image"
@@ -28,15 +28,20 @@
 </template>
 
 <script setup lang="ts">
-import type { PokemonListItem } from '@/types/pokemon'
+import type { PokemonListItem as PokemonListItemType } from '@/types/pokemon'
 
-defineProps<{
-  pokemon: PokemonListItem
-}>()
+interface Props {
+  pokemon: PokemonListItemType
+}
 
-defineEmits<{
-  select: [pokemon: PokemonListItem]
-}>()
+interface Emits {
+  (event: 'select', pokemon: PokemonListItemType): void
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = defineProps<Props>()
+
+const emit = defineEmits<Emits>()
 
 const formatName = (name: string) => {
   return name.charAt(0).toUpperCase() + name.slice(1)

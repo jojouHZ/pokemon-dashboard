@@ -2,7 +2,7 @@
   <section v-if="totalPages > 1" class="pokemon-pagination">
     <!-- Previous Button -->
     <button
-      @click="$emit('page-change', currentPage - 1)"
+      @click="emit('page-change', currentPage - 1)"
       :disabled="currentPage === 1"
       class="pagination-btn pagination-btn--prev"
     >
@@ -12,7 +12,7 @@
     <!-- Page Numbers -->
     <div class="pagination-pages">
       <!-- First page -->
-      <button v-if="currentPage > 3" @click="$emit('page-change', 1)" class="pagination-page">
+      <button v-if="currentPage > 3" @click="emit('page-change', 1)" class="pagination-page">
         1
       </button>
 
@@ -23,7 +23,7 @@
       <button
         v-for="page in paginationRange"
         :key="page"
-        @click="$emit('page-change', page)"
+        @click="emit('page-change', page)"
         :class="['pagination-page', { 'pagination-page--active': page === currentPage }]"
       >
         {{ page }}
@@ -35,7 +35,7 @@
       <!-- Last page -->
       <button
         v-if="currentPage < totalPages - 2"
-        @click="$emit('page-change', totalPages)"
+        @click="emit('page-change', totalPages)"
         class="pagination-page"
       >
         {{ totalPages }}
@@ -44,7 +44,7 @@
 
     <!-- Next Button -->
     <button
-      @click="$emit('page-change', currentPage + 1)"
+      @click="emit('page-change', currentPage + 1)"
       :disabled="currentPage === totalPages"
       class="pagination-btn pagination-btn--next"
     >
@@ -74,7 +74,7 @@ interface Emits {
 }
 
 const props = defineProps<Props>()
-defineEmits<Emits>()
+const emit = defineEmits<Emits>()
 
 // Pagination range (e.g., [3, 4, 5, 6, 7] when current = 5)
 const paginationRange = computed(() => {

@@ -1,11 +1,15 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { PAGINATION_BREAKPOINTS, DEBOUNCE_DELAYS } from '@/constants'
 import { useDebounceFn } from './useDebounce'
+import type { Ref } from 'vue'
 
-/**
- * Global state width - shared between all components
- * Uses single listener for whole App
- */
+export type Breakpoint = 'desktop' | 'tablet' | 'mobile'
+
+interface UseBreakpointReturn {
+  width: Ref<number>
+  type: Ref<Breakpoint>
+}
+
 const width = ref<number>(
   typeof window !== 'undefined' ? window.innerWidth : PAGINATION_BREAKPOINTS.DESKTOP,
 )
@@ -17,11 +21,7 @@ const updateWidth = () => {
 
 const debouncedUpdate = useDebounceFn(updateWidth, DEBOUNCE_DELAYS.RESIZE)
 
-/**
- * Composable for definition of current breakpoint for pagination
- * @returns screen width (px), screen type <'desktop' | 'tablet' | 'mobile'>
- */
-export const useBreakpoint = () => {
+export const useBreakpoint = (): UseBreakpointReturn => {
   const type = computed(() => {
     if (width.value >= PAGINATION_BREAKPOINTS.DESKTOP) return 'desktop' as const
     if (width.value >= PAGINATION_BREAKPOINTS.TABLET) return 'tablet' as const

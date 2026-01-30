@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getPokemonListFull } from '@/services/pokemon'
+import { isPokemonApiError } from '@/types/errors'
 import type { Pokemon } from '@/types/pokemon'
 import { ITEMS_PER_PAGE, CURRENT_PAGE_INITIAL } from '@/constants'
 
@@ -23,8 +24,12 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
       const data = await getPokemonListFull()
       pokemonList.value = data
     } catch (err) {
-      error.value = 'Failed to load Pokémon list'
-      console.error(err)
+      if (isPokemonApiError(err)) {
+        error.value = err.message
+      } else {
+        error.value = 'Failed to load Pokémon list'
+        console.error('Unexpected error:', err)
+      }
     } finally {
       loading.value = false
     }

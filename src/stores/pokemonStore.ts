@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { getPokemon, getPokemonSpecies } from '@/services/pokemon'
 import type { Pokemon } from '@/types/pokemon'
 import type { PokemonSpecies } from '@/services/pokemon'
+import { isPokemonApiError } from '@/types/errors'
 
 export const usePokemonStore = defineStore('pokemon', () => {
   const current = ref<Pokemon | null>(null)
@@ -24,9 +25,18 @@ export const usePokemonStore = defineStore('pokemon', () => {
       current.value = pokemonData
       species.value = speciesData
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Unknown error'
+      if (isPokemonApiError(err)) {
+        error.value = err.pokemon ? `Failed to load ${err.pokemon}: ${err.message}` : err.message
+      } else if (err instanceof Error) {
+        error.value = err.message
+      } else {
+        error.value = 'An unexpected error occurred'
+      }
+
       current.value = null
       species.value = null
+
+      console.error('[pokemonStore] Error loading pokemon:', err)
     } finally {
       loading.value = false
     }

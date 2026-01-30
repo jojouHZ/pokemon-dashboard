@@ -1,5 +1,7 @@
 import axios from 'axios'
 import type { Pokemon } from '@/types/pokemon'
+import { isPokemon } from '@/types/pokemon/guards'
+import { PokemonApiError } from '@/types/errors'
 
 const API_BASE = 'https://pokeapi.co/api/v2'
 const axiosInstance = axios.create({
@@ -47,7 +49,7 @@ async function getPokemonFromUrl(url: string): Promise<Pokemon> {
   try {
     const { data } = await axiosInstance.get<PokeAPISummaryResponse>(url)
 
-    return {
+    const pokemon: Pokemon = {
       id: data.id,
       name: data.name,
       height: data.height,
@@ -60,9 +62,25 @@ async function getPokemonFromUrl(url: string): Promise<Pokemon> {
         value: s.base_stat,
       })),
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    if (!isPokemon(pokemon)) {
+      throw new PokemonApiError('Invalid pokemon data structure', 500)
+    }
+
+    return pokemon
   } catch (error) {
-    throw new Error(`Failed to fetch pokemon from ${url}`)
+    if (error instanceof PokemonApiError) {
+      throw error
+    }
+
+    if (axios.isAxiosError(error)) {
+      throw new PokemonApiError(
+        `Failed to fetch pokemon from ${url}: ${error.message}`,
+        error.response?.status,
+      )
+    }
+
+    throw new PokemonApiError(`Unexpected error fetching from ${url}`, 500)
   }
 }
 
@@ -73,25 +91,34 @@ async function getPokemonFromUrl(url: string): Promise<Pokemon> {
  */
 export async function getPokemonListFull(): Promise<Pokemon[]> {
   try {
-    // Get list of all pokemon URLs
     const { data } = await axiosInstance.get<PokeAPIListResponse>('/pokemon?limit=1292&offset=0')
 
-    // Load full data for each pokemon in parallel
     const pokemonPromises = data.results.map((item) => getPokemonFromUrl(item.url))
     const pokemonList = await Promise.all(pokemonPromises)
 
     return pokemonList
   } catch (error) {
-    throw new Error(`Failed to fetch complete pokemon list: ${error}`)
+    if (error instanceof PokemonApiError) {
+      throw error
+    }
+
+    if (axios.isAxiosError(error)) {
+      throw new PokemonApiError(
+        `Failed to fetch complete pokemon list: ${error.message}`,
+        error.response?.status,
+      )
+    }
+
+    throw new PokemonApiError('Unexpected error fetching pokemon list', 500)
   }
 }
 
 /**
  * Get paginated pokemon list with full data
- * For future use (if we want server-side pagination)
+ * For future use (if we want server-side pagination - !big question)
  */
 export async function getPokemonListPaginated(
-  limit: number = 20,
+  limit: number = 24,
   offset: number = 0,
 ): Promise<Pokemon[]> {
   try {
@@ -104,6 +131,20 @@ export async function getPokemonListPaginated(
 
     return pokemonList
   } catch (error) {
-    throw new Error(`Failed to fetch pokemon list (limit=${limit}, offset=${offset}): ${error}`)
+    if (error instanceof PokemonApiError) {
+      throw error
+    }
+
+    if (axios.isAxiosError(error)) {
+      throw new PokemonApiError(
+        `Failed to fetch pokemon list (limit=${limit}, offset=${offset}): ${error.message}`,
+        error.response?.status,
+      )
+    }
+
+    throw new PokemonApiError(
+      `Unexpected error fetching pokemon list (limit=${limit}, offset=${offset})`,
+      500,
+    )
   }
 }

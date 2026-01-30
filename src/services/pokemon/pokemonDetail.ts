@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from 'axios'
+import { isPokemon, isPokemonArray } from '@/types/pokemon'
 import type { Pokemon } from '@/types/pokemon'
+import { PokemonApiError } from '@/types/errors'
 
 const API_BASE = 'https://pokeapi.co/api/v2'
 const axiosInstance = axios.create({
@@ -68,12 +71,21 @@ export async function getPokemon(name: string): Promise<Pokemon> {
       })),
     }
 
+    if (!isPokemon(pokemon)) {
+      throw new PokemonApiError('Invalid pokemon data structure received from API', 500, name)
+    }
+
     return pokemon
   } catch (error) {
+    if (error instanceof PokemonApiError) throw error
     if (axios.isAxiosError(error)) {
-      throw new Error(`Failed to fetch pokemon "${name}": ${error.message}`)
+      throw new PokemonApiError(
+        `Failed to fetch pokemon "${name}": ${error.message}`,
+        error.response?.status,
+        name,
+      )
     }
-    throw error
+    throw new PokemonApiError(`Unexpected error fetching pokemon "${name}"`, 500, name)
   }
 }
 
@@ -100,6 +112,13 @@ export async function getPokemonSpecies(name: string): Promise<PokemonSpecies> {
       genus,
     }
   } catch (error) {
-    throw new Error(`Failed to fetch species data for "${name}": ${error}`)
+    if (axios.isAxiosError(error)) {
+      throw new PokemonApiError(
+        `Failed to fetch species data for "${name}": ${error.message}`,
+        error.response?.status,
+        name,
+      )
+    }
+    throw new PokemonApiError(`Unexpected error fetching species for "${name}"`, 500, name)
   }
 }

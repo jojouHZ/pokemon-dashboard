@@ -58,9 +58,9 @@ interface Props {
 }
 
 interface Emits {
-  search: [query: string]
-  filter: [type: string | null]
-  clear: []
+  (event: 'search', query: string): void
+  (event: 'filter', type: string | null): void
+  (event: 'clear'): void
 }
 
 const props = defineProps<Props>()
