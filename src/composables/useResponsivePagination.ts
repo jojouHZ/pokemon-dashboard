@@ -1,16 +1,16 @@
 import { ref, watchEffect } from 'vue'
 import { ITEMS_PER_PAGE } from '@/constants'
 import { useBreakpoint, type Breakpoint } from './useBreakpoint'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 interface UseResponsivePaginationReturn {
   itemsPerPage: Ref<number>
-  currentBreakpoint: Ref<Breakpoint | undefined>
+  currentBreakpoint: ComputedRef<Breakpoint>
 }
 
 export function useResponsivePagination(): UseResponsivePaginationReturn {
-  const currentBreakpoint = useBreakpoint().type as Ref<Breakpoint | undefined>
-  const getItemsForBreakpoint = (breakpoint: Breakpoint | undefined) => {
+  const { type: currentBreakpoint } = useBreakpoint()
+  const getItemsForBreakpoint = (breakpoint: Breakpoint) => {
     switch (breakpoint) {
       case 'desktop':
         return ITEMS_PER_PAGE.DESKTOP

@@ -1,13 +1,13 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { PAGINATION_BREAKPOINTS, DEBOUNCE_DELAYS } from '@/constants'
 import { useDebounceFn } from './useDebounce'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 export type Breakpoint = 'desktop' | 'tablet' | 'mobile'
 
 interface UseBreakpointReturn {
   width: Ref<number>
-  type: Ref<Breakpoint>
+  type: ComputedRef<Breakpoint>
 }
 
 const width = ref<number>(
