@@ -47,19 +47,20 @@
 import { ref, computed, watch } from 'vue'
 import SearchInput from './SearchInput.vue'
 import TypeFilter from './TypeFilter.vue'
+import type { PokemonTypeName } from '@/types/pokemon'
 import { DEBOUNCE_DELAYS } from '@/constants'
 
 import { useDebounce } from '@/composables/useDebounce'
 
 interface Props {
   searchQuery: string
-  selectedType: string | null
+  selectedType: PokemonTypeName | null
   totalResults: number
 }
 
 interface Emits {
   (event: 'search', query: string): void
-  (event: 'filter', type: string | null): void
+  (event: 'filter', type: PokemonTypeName | null): void
   (event: 'clear'): void
 }
 
@@ -88,7 +89,7 @@ watch(
   },
 )
 
-const handleTypeChange = (type: string | null) => {
+const handleTypeChange = (type: PokemonTypeName | null) => {
   selectedType.value = type
   emit('filter', type)
 }
