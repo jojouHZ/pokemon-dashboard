@@ -1,15 +1,14 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, readonly } from 'vue'
 import { getPokemonListFull } from '@/services/pokemon'
 import { isPokemonApiError } from '@/types/errors'
-import type { Pokemon } from '@/types/pokemon'
+import type { Pokemon, PokemonTypeName } from '@/types/pokemon'
 import { ITEMS_PER_PAGE, CURRENT_PAGE_INITIAL } from '@/constants'
 
 export const usePokemonListStore = defineStore('pokemonList', () => {
-  // State
   const pokemonList = ref<Pokemon[]>([])
   const searchQuery = ref('')
-  const selectedType = ref<string | null>(null)
+  const selectedType = ref<PokemonTypeName | null>(null)
   const currentPage = ref(CURRENT_PAGE_INITIAL.DEFAULT)
   const itemsPerPage = ref<number>(ITEMS_PER_PAGE.DEFAULT)
   const loading = ref(false)
@@ -40,7 +39,7 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
     currentPage.value = CURRENT_PAGE_INITIAL.DEFAULT
   }
 
-  function setSelectedType(type: string | null) {
+  function setSelectedType(type: PokemonTypeName | null) {
     selectedType.value = type
     currentPage.value = CURRENT_PAGE_INITIAL.DEFAULT
   }
@@ -61,39 +60,45 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
   }
 
   // Getters
-  const filteredPokemon = computed(() => {
-    let filtered = pokemonList.value
+  const filteredPokemon = readonly(
+    computed(() => {
+      let filtered = pokemonList.value
 
-    // Filter by search
-    if (searchQuery.value) {
-      filtered = filtered.filter((pokemon) =>
-        pokemon.name.toLowerCase().includes(searchQuery.value),
-      )
-    }
+      // Filter by search
+      if (searchQuery.value) {
+        filtered = filtered.filter((pokemon) =>
+          pokemon.name.toLowerCase().includes(searchQuery.value),
+        )
+      }
 
-    // Filter by type
-    if (selectedType.value) {
-      filtered = filtered.filter((pokemon) =>
-        pokemon.types.some((type) => type.toLowerCase() === selectedType.value?.toLowerCase()),
-      )
-    }
+      // Filter by type
+      if (selectedType.value) {
+        filtered = filtered.filter((pokemon) =>
+          pokemon.types.some((type) => type.toLowerCase() === selectedType.value?.toLowerCase()),
+        )
+      }
 
-    return filtered
-  })
+      return filtered
+    }),
+  )
 
-  const totalPages = computed(() => {
-    const count = filteredPokemon.value.length
-    return Math.ceil(count / itemsPerPage.value)
-  })
+  const totalPages = readonly(
+    computed(() => {
+      const count = filteredPokemon.value.length
+      return Math.ceil(count / itemsPerPage.value)
+    }),
+  )
 
-  const displayedPokemon = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage.value
-    const end = start + itemsPerPage.value
-    return filteredPokemon.value.slice(start, end)
-  })
+  const displayedPokemon = readonly(
+    computed(() => {
+      const start = (currentPage.value - 1) * itemsPerPage.value
+      const end = start + itemsPerPage.value
+      return filteredPokemon.value.slice(start, end)
+    }),
+  )
 
-  const totalResults = computed(() => filteredPokemon.value.length)
-  const hasResults = computed(() => totalResults.value > 0)
+  const totalResults = readonly(computed(() => filteredPokemon.value.length))
+  const hasResults = readonly(computed(() => totalResults.value > 0))
 
   // Init
   loadPokemonList()

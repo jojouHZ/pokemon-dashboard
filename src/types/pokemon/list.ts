@@ -2,7 +2,7 @@ export interface PokemonListItem {
   id: number
   name: string
   image: string
-  types: string[]
+  types: readonly string[]
 }
 
 export interface PokemonListResponse {

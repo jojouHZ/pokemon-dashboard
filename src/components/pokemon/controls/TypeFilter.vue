@@ -2,7 +2,12 @@
   <div class="type-filter">
     <select
       :value="props.modelValue || ''"
-      @change="emit('update:modelValue', ($event.target as HTMLSelectElement).value || null)"
+      @change="
+        emit(
+          'update:modelValue',
+          (($event.target as HTMLSelectElement).value || null) as PokemonTypeName | null,
+        )
+      "
       class="type-filter__select"
     >
       <option value="">All Types</option>
@@ -29,12 +34,13 @@
 </template>
 
 <script setup lang="ts">
+import type { PokemonTypeName } from '@/types/pokemon'
 interface Props {
-  modelValue: string | null
+  modelValue: PokemonTypeName | null
 }
 
 interface Emits {
-  (event: 'update:modelValue', value: string | null): void
+  (event: 'update:modelValue', value: PokemonTypeName | null): void
 }
 
 const props = defineProps<Props>()
