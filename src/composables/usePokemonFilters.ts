@@ -16,7 +16,14 @@ interface UsePokemonFiltersReturn {
   setSelectedType: (type: PokemonTypeName | null) => void
   clearFilters: () => void
 }
-
+/**
+ * Facade over pokemonListStore for filter-related state.
+ *
+ * Exposes search query, type filter and derived total results,
+ * while delegating all writes to pokemonListStore actions.
+ *
+ * @returns {UsePokemonFiltersReturn} Filter refs, derived values and update helpers.
+ */
 export function usePokemonFilters(): UsePokemonFiltersReturn {
   const listStore = usePokemonListStore()
   const { searchQuery, selectedType } = storeToRefs(listStore)

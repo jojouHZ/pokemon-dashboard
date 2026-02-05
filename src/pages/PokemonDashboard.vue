@@ -21,7 +21,13 @@
 
       <!-- Pokemon List -->
       <section class="pokemon-dashboard__content">
-        <PokemonList />
+        <PokemonList
+          :items="listStore.displayedPokemon"
+          :loading="listStore.loading"
+          :error="listStore.error"
+          @retry="handleRetry"
+          @select="handleSelectPokemon"
+        />
       </section>
       <section>
         <!-- Pagination -->
@@ -39,16 +45,27 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { usePokemonStore } from '@/stores/pokemonStore'
 import { usePokemonListStore } from '@/stores/pokemonListStore'
 import { PokemonControls, PokemonList, PokemonPagination } from '@/components/pokemon'
 import { useResponsivePagination } from '@/composables/useResponsivePagination'
 import { usePokemonFilters } from '@/composables/usePokemonFilters'
+import type { PokemonListItem as PokemonListItemType } from '@/types/pokemon'
 
+const router = useRouter()
 const store = usePokemonStore()
 const listStore = usePokemonListStore()
 const { searchQuery, selectedType, totalResults, setSearchQuery, setSelectedType, clearFilters } =
   usePokemonFilters()
+
+const handleRetry = () => {
+  listStore.loadPokemonList()
+}
+
+const handleSelectPokemon = (pokemon: PokemonListItemType) => {
+  router.push(`/pokemon/${pokemon.name}`)
+}
 
 const { itemsPerPage } = useResponsivePagination()
 

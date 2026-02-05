@@ -1,19 +1,19 @@
 <template>
   <div class="pokemon-list">
     <!-- Loading state -->
-    <div v-if="listStore.loading" class="pokemon-list__loading">
+    <div v-if="props.loading" class="pokemon-list__loading">
       <div class="spinner"></div>
       <p>Loading Pokémon...</p>
     </div>
 
     <!-- Error state -->
-    <div v-else-if="listStore.error" class="pokemon-list__error">
+    <div v-else-if="props.error" class="pokemon-list__error">
       <p>❌ {{ listStore.error }}</p>
       <button @click="listStore.loadPokemonList()" class="pokemon-list__retry">Try Again</button>
     </div>
 
     <!-- Empty state -->
-    <div v-else-if="listStore.displayedPokemon.length === 0" class="pokemon-list__empty">
+    <div v-else-if="!props.items.length" class="pokemon-list__empty">
       <p>No Pokémon found</p>
     </div>
 
@@ -21,10 +21,10 @@
     <div v-else class="pokemon-list__content">
       <div class="pokemon-list__grid">
         <PokemonListItem
-          v-for="pokemon in listStore.displayedPokemon"
+          v-for="pokemon in props.items"
           :key="pokemon.id"
           :pokemon="pokemon"
-          @select="selectPokemon"
+          @select="emit('select', pokemon)"
         />
       </div>
     </div>
@@ -35,14 +35,21 @@
 import type { PokemonListItem as PokemonListItemType } from '@/types/pokemon'
 import { usePokemonListStore } from '@/stores/pokemonListStore'
 import { PokemonListItem } from '@/components/pokemon/list'
-import { useRouter } from 'vue-router'
 
 const listStore = usePokemonListStore()
-const router = useRouter()
 
-const selectPokemon = (pokemon: PokemonListItemType) => {
-  router.push(`/pokemon/${pokemon.name}`)
+interface Props {
+  items: readonly PokemonListItemType[]
+  loading: boolean
+  error: string | null
 }
+
+interface Emits {
+  (event: 'retry'): void
+  (event: 'select', pokemon: PokemonListItemType): void
+}
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
 </script>
 
 <style scoped lang="scss">
