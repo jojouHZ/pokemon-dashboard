@@ -2,13 +2,13 @@
   <div class="search-input">
     <input
       type="text"
-      :value="modelValue"
-      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+      :value="props.modelValue"
+      @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       placeholder="Search Pokémon by name..."
       class="search-input__field"
     />
     <button
-      v-if="modelValue"
+      v-if="props.modelValue"
       @click="$emit('update:modelValue', '')"
       class="search-input__clear"
       aria-label="Clear search"
@@ -20,13 +20,16 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+interface Props {
   modelValue: string
-}>()
+}
 
-defineEmits<{
-  'update:modelValue': [value: string]
-}>()
+interface Emits {
+  (event: 'update:modelValue', value: string): void
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
 </script>
 
 <style scoped lang="scss">

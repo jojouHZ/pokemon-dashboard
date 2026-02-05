@@ -1,8 +1,8 @@
 <template>
   <div class="type-filter">
     <select
-      :value="modelValue || ''"
-      @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value || null)"
+      :value="props.modelValue || ''"
+      @change="emit('update:modelValue', ($event.target as HTMLSelectElement).value || null)"
       class="type-filter__select"
     >
       <option value="">All Types</option>
@@ -29,13 +29,16 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+interface Props {
   modelValue: string | null
-}>()
+}
 
-defineEmits<{
-  'update:modelValue': [value: string | null]
-}>()
+interface Emits {
+  (event: 'update:modelValue', value: string | null): void
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
 </script>
 
 <style scoped lang="scss">

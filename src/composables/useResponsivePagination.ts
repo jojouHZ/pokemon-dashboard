@@ -1,7 +1,7 @@
 import { ref, watchEffect } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 import { ITEMS_PER_PAGE } from '@/constants'
 import { useBreakpoint, type Breakpoint } from './useBreakpoint'
-import type { ComputedRef, Ref } from 'vue'
 
 interface UseResponsivePaginationReturn {
   itemsPerPage: Ref<number>

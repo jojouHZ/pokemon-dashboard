@@ -11,12 +11,12 @@
     <main class="pokemon-dashboard__main">
       <!-- Search & Filter Controls -->
       <PokemonControls
-        :search-query="listStore.searchQuery"
-        :selected-type="listStore.selectedType"
-        :total-results="listStore.totalResults"
-        @search="listStore.setSearchQuery"
-        @filter="listStore.setSelectedType"
-        @clear="listStore.clearFilters"
+        :search-query="searchQuery"
+        :selected-type="selectedType"
+        :total-results="totalResults"
+        @search="setSearchQuery"
+        @filter="setSelectedType"
+        @clear="clearFilters"
       />
 
       <!-- Pokemon List -->
@@ -28,7 +28,7 @@
         <PokemonPagination
           :current-page="listStore.currentPage"
           :total-pages="listStore.totalPages"
-          :total-items="listStore.totalResults"
+          :total-items="totalResults"
           :items-per-page="listStore.itemsPerPage"
           @page-change="listStore.setPage"
         ></PokemonPagination>
@@ -43,9 +43,13 @@ import { usePokemonStore } from '@/stores/pokemonStore'
 import { usePokemonListStore } from '@/stores/pokemonListStore'
 import { PokemonControls, PokemonList, PokemonPagination } from '@/components/pokemon'
 import { useResponsivePagination } from '@/composables/useResponsivePagination'
+import { usePokemonFilters } from '@/composables/usePokemonFilters'
 
 const store = usePokemonStore()
 const listStore = usePokemonListStore()
+const { searchQuery, selectedType, totalResults, setSearchQuery, setSelectedType, clearFilters } =
+  usePokemonFilters()
+
 const { itemsPerPage } = useResponsivePagination()
 
 // Set initial value
