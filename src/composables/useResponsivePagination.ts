@@ -7,7 +7,15 @@ interface UseResponsivePaginationReturn {
   itemsPerPage: Ref<number>
   currentBreakpoint: ComputedRef<Breakpoint>
 }
-
+/**
+ * Provides responsive itemsPerPage based on screen breakpoint.
+ *
+ * - Desktop (≥1024px): 24 items
+ * - Tablet (768–1023px): 18 items
+ * - Mobile (<768px): 12 items
+ *
+ * @returns {UseResponsivePaginationReturn} itemsPerPage and current breakpoint.
+ */
 export function useResponsivePagination(): UseResponsivePaginationReturn {
   const { type: currentBreakpoint } = useBreakpoint()
   const getItemsForBreakpoint = (breakpoint: Breakpoint) => {

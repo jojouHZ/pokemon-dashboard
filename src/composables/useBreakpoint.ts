@@ -21,6 +21,11 @@ const updateWidth = () => {
 
 const debouncedUpdate = useDebounceFn(updateWidth, DEBOUNCE_DELAYS.RESIZE)
 
+/**
+ * Tracks current responsive breakpoint for pagination.
+ *
+ * @returns {UseBreakpointReturn} Reactive width and breakpoint type ('desktop' | 'tablet' | 'mobile').
+ */
 export const useBreakpoint = (): UseBreakpointReturn => {
   const type = computed(() => {
     if (width.value >= PAGINATION_BREAKPOINTS.DESKTOP) return 'desktop' as const
