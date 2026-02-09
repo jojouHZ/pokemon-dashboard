@@ -22,15 +22,15 @@
       <!-- Pokemon List -->
       <section class="pokemon-dashboard__content">
         <PokemonList
-          :items="listStore.displayedPokemon"
+          :items="displayedPokemon"
           :loading="listStore.loading"
           :error="listStore.error"
           @retry="handleRetry"
           @select="handleSelectPokemon"
         />
       </section>
-      <section>
-        <!-- Pagination -->
+      <section v-if="usePagination">
+        <!-- Pagination (desktop only) -->
         <PokemonPagination
           :current-page="listStore.currentPage"
           :total-pages="listStore.totalPages"
@@ -51,6 +51,8 @@ import { usePokemonListStore } from '@/stores/pokemonListStore'
 import { PokemonControls, PokemonList, PokemonPagination } from '@/components/pokemon'
 import { useResponsivePagination } from '@/composables/useResponsivePagination'
 import { usePokemonFilters } from '@/composables/usePokemonFilters'
+import { useBreakpoint } from '@/composables/useBreakpoint'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
 import type { PokemonListItem as PokemonListItemType } from '@/types/pokemon'
 
 const router = useRouter()
@@ -69,13 +71,47 @@ const handleSelectPokemon = (pokemon: PokemonListItemType) => {
 
 const { itemsPerPage } = useResponsivePagination()
 
-// Set initial value
+// Breakpoint detection
+const { type: breakpoint } = useBreakpoint()
+
+// Determine display mode based on breakpoint
+const usePagination = computed(() => breakpoint.value === 'desktop')
+const useInfinite = computed(() => breakpoint.value !== 'desktop')
+
+// Infinite scroll for tablet/mobile
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { isLoading: isLoadingMore } = useInfiniteScroll({
+  threshold: 300,
+  enabled: useInfinite.value,
+  onLoadMore: () => {
+    if (listStore.hasMore) {
+      listStore.loadNextPage()
+    }
+  },
+})
+
+// Displayed pokemon (depends on mode)
+const displayedPokemon = computed(() => {
+  if (usePagination.value) {
+    // Desktop: use paginated view from store
+    return listStore.displayedPokemon
+  } else {
+    // Tablet/Mobile: use infinite scroll view
+    const filtered = listStore.filteredPokemon
+    return filtered.slice(0, listStore.loadedCount)
+  }
+})
+
+// Set initial value and reset infinite scroll
 listStore.setItemsPerPage(itemsPerPage.value)
+listStore.resetInfiniteScroll()
+
 // Watch for changes
 watch(
   itemsPerPage,
   (newValue) => {
     listStore.setItemsPerPage(newValue)
+    listStore.resetInfiniteScroll()
   },
   { immediate: true },
 )
