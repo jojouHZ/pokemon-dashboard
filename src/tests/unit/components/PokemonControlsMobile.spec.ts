@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import PokemonControls from '@/components/pokemon/controls/PokemonControls.vue'
+import { PokemonControlsMobile } from '@/components/pokemon/controls'
 import SearchInput from '@/components/pokemon/controls/SearchInput.vue'
 import TypeFilter from '@/components/pokemon/controls/TypeFilter.vue'
 
-describe('PokemonControls', () => {
+describe('PokemonControlsDesktop', () => {
   const defaultProps = {
     searchQuery: '',
     selectedType: null,
@@ -15,7 +15,7 @@ describe('PokemonControls', () => {
 
   // Smoke
   it('renders SearchInput, TypeFilter and results info', () => {
-    const wrapper = mount(PokemonControls, {
+    const wrapper = mount(PokemonControlsMobile, {
       props: defaultProps,
     })
 
@@ -24,13 +24,11 @@ describe('PokemonControls', () => {
 
     expect(searchInput.exists()).toBe(true)
     expect(typeFilter.exists()).toBe(true)
-
-    expect(wrapper.text()).toContain('0 Pokémon available')
   })
 
   // SearchInput → debounced emit 'search'
   it('emits "search" when user types in SearchInput (after debounce)', async () => {
-    const wrapper = mount(PokemonControls, {
+    const wrapper = mount(PokemonControlsMobile, {
       props: defaultProps,
     })
 
@@ -44,7 +42,7 @@ describe('PokemonControls', () => {
 
   // Type filter → emit 'filter'
   it('emits "filter" when user selects a type in TypeFilter', async () => {
-    const wrapper = mount(PokemonControls, {
+    const wrapper = mount(PokemonControlsMobile, {
       props: defaultProps,
     })
 
@@ -58,7 +56,7 @@ describe('PokemonControls', () => {
 
   // Clear Filters -> emit 'clear'
   it('shows Clear Filters button when filters are active and emits "clear" on click', async () => {
-    const wrapper = mount(PokemonControls, {
+    const wrapper = mount(PokemonControlsMobile, {
       props: {
         searchQuery: 'char',
         selectedType: 'fire',
@@ -66,9 +64,9 @@ describe('PokemonControls', () => {
       },
     })
 
-    const clearButton = wrapper.find('.pokemon-controls__clear-btn')
+    const clearButton = wrapper.find('.pokemon-controls-mobile__clear-btn')
     expect(clearButton.exists()).toBe(true)
-    expect(clearButton.text()).toContain('Clear Filters')
+    expect(clearButton.text()).toContain('✕')
 
     await clearButton.trigger('click')
 
@@ -78,7 +76,7 @@ describe('PokemonControls', () => {
 
   // no filters -> hide 'clear'
   it('hides Clear Filters button when no filters are active', () => {
-    const wrapper = mount(PokemonControls, {
+    const wrapper = mount(PokemonControlsMobile, {
       props: {
         searchQuery: '',
         selectedType: null,
@@ -89,18 +87,5 @@ describe('PokemonControls', () => {
     const clearButton = wrapper.find('button')
 
     expect(clearButton.exists()).toBe(false)
-  })
-
-  // Show totalResults
-  it('displays correct totalResults text', () => {
-    const wrapper = mount(PokemonControls, {
-      props: {
-        searchQuery: '',
-        selectedType: null,
-        totalResults: 42,
-      },
-    })
-
-    expect(wrapper.text()).toContain('42 Pokémon available')
   })
 })

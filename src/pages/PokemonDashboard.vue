@@ -1,25 +1,59 @@
 <template>
   <div class="pokemon-dashboard">
-    <header class="pokemon-dashboard__header">
-      <div class="pokemon-dashboard__header-title">
-        <span class="pokemon-dashboard__emoji">🐾</span>
-        <h1>Pokémon Dashboard</h1>
-        <p>Explore all {{ totalPokemonCount }} Pokémon</p>
-      </div>
-    </header>
-
-    <main class="pokemon-dashboard__main">
-      <!-- Search & Filter Controls -->
-      <PokemonControls
-        :search-query="searchQuery"
-        :selected-type="selectedType"
-        :total-results="totalResults"
-        @search="setSearchQuery"
-        @filter="setSelectedType"
-        @clear="clearFilters"
+    <!-- ===== MOBILE/TABLET: sticky header + mobile controls ===== -->
+    <div
+      v-if="headerIsSticky"
+      class="pokemon-dashboard__sticky-container pokemon-dashboard__sticky-container--sticky"
+      :class="{
+        'pokemon-dashboard__sticky-container--hidden': headerIsHidden,
+      }"
+    >
+      <DashboardHeader
+        title="Pokémon Dashboard"
+        :subtitle="`Explore all ${totalPokemonCount} Pokémon`"
+        :is-sticky="false"
+        :is-hidden="false"
       />
 
-      <!-- Pokemon List -->
+      <div class="pokemon-dashboard__controls-wrapper pokemon-dashboard__controls-wrapper--mobile">
+        <PokemonControlsMobile
+          :search-query="searchQuery"
+          :selected-type="selectedType"
+          @search="setSearchQuery"
+          @filter="setSelectedType"
+          @clear="clearFilters"
+        />
+      </div>
+    </div>
+
+    <!-- Spacer для sticky header + mobile controls -->
+    <div v-if="headerIsSticky" class="pokemon-dashboard__sticky-spacer"></div>
+
+    <!-- ===== DESKTOP: common header ===== -->
+    <DashboardHeader
+      v-if="!headerIsSticky"
+      title="Pokémon Dashboard"
+      :subtitle="`Explore all ${totalPokemonCount} Pokémon`"
+      :is-sticky="false"
+      :is-hidden="false"
+    />
+
+    <main class="pokemon-dashboard__main">
+      <!-- ===== DESKTOP: controls ===== -->
+      <div
+        v-if="!headerIsSticky"
+        class="pokemon-dashboard__controls-wrapper pokemon-dashboard__controls-wrapper--desktop"
+      >
+        <PokemonControlsDesktop
+          :search-query="searchQuery"
+          :selected-type="selectedType"
+          :total-results="totalResults"
+          @search="setSearchQuery"
+          @filter="setSelectedType"
+          @clear="clearFilters"
+        />
+      </div>
+
       <section class="pokemon-dashboard__content">
         <PokemonList
           :items="displayedPokemon"
@@ -29,94 +63,47 @@
           @select="handleSelectPokemon"
         />
       </section>
+
       <section v-if="usePagination">
-        <!-- Pagination (desktop only) -->
         <PokemonPagination
           :current-page="listStore.currentPage"
           :total-pages="listStore.totalPages"
           :total-items="totalResults"
-          :items-per-page="listStore.itemsPerPage"
+          :items-per-page="itemsPerPage"
           @page-change="listStore.setPage"
-        ></PokemonPagination>
+        />
       </section>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { usePokemonStore } from '@/stores/pokemonStore'
-import { usePokemonListStore } from '@/stores/pokemonListStore'
-import { PokemonControls, PokemonList, PokemonPagination } from '@/components/pokemon'
-import { useResponsivePagination } from '@/composables/useResponsivePagination'
-import { usePokemonFilters } from '@/composables/usePokemonFilters'
-import { useBreakpoint } from '@/composables/useBreakpoint'
-import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
-import type { PokemonListItem as PokemonListItemType } from '@/types/pokemon'
+import {
+  PokemonControlsDesktop,
+  PokemonControlsMobile,
+  PokemonList,
+  PokemonPagination,
+  DashboardHeader,
+} from '@/components/pokemon'
+import { usePokemonDashboard } from '@/composables'
 
-const router = useRouter()
-const store = usePokemonStore()
-const listStore = usePokemonListStore()
-const { searchQuery, selectedType, totalResults, setSearchQuery, setSelectedType, clearFilters } =
-  usePokemonFilters()
-
-const handleRetry = () => {
-  listStore.loadPokemonList()
-}
-
-const handleSelectPokemon = (pokemon: PokemonListItemType) => {
-  router.push(`/pokemon/${pokemon.name}`)
-}
-
-const { itemsPerPage } = useResponsivePagination()
-
-// Breakpoint detection
-const { type: breakpoint } = useBreakpoint()
-
-// Determine display mode based on breakpoint
-const usePagination = computed(() => breakpoint.value === 'desktop')
-const useInfinite = computed(() => breakpoint.value !== 'desktop')
-
-// Infinite scroll for tablet/mobile
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const { isLoading: isLoadingMore } = useInfiniteScroll({
-  threshold: 300,
-  enabled: useInfinite.value,
-  onLoadMore: () => {
-    if (listStore.hasMore) {
-      listStore.loadNextPage()
-    }
-  },
-})
-
-// Displayed pokemon (depends on mode)
-const displayedPokemon = computed(() => {
-  if (usePagination.value) {
-    // Desktop: use paginated view from store
-    return listStore.displayedPokemon
-  } else {
-    // Tablet/Mobile: use infinite scroll view
-    const filtered = listStore.filteredPokemon
-    return filtered.slice(0, listStore.loadedCount)
-  }
-})
-
-// Set initial value and reset infinite scroll
-listStore.setItemsPerPage(itemsPerPage.value)
-listStore.resetInfiniteScroll()
-
-// Watch for changes
-watch(
+const {
+  searchQuery,
+  selectedType,
+  totalResults,
+  displayedPokemon,
+  totalPokemonCount,
+  usePagination,
   itemsPerPage,
-  (newValue) => {
-    listStore.setItemsPerPage(newValue)
-    listStore.resetInfiniteScroll()
-  },
-  { immediate: true },
-)
-
-const totalPokemonCount = computed(() => store.totalPokemonCount)
+  headerIsSticky,
+  headerIsHidden,
+  listStore,
+  setSearchQuery,
+  setSelectedType,
+  clearFilters,
+  handleRetry,
+  handleSelectPokemon,
+} = usePokemonDashboard()
 </script>
 
 <style scoped lang="scss">
@@ -126,60 +113,62 @@ const totalPokemonCount = computed(() => store.totalPokemonCount)
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   display: flex;
   flex-direction: column;
-}
+  overflow-x: hidden;
 
-/* fix viewport for mobile/low-height toggle to scroll */
-@media (min-width: 1024px) and (min-height: 750px) {
-  .pokemon-dashboard {
+  @media (min-width: 1024px) and (min-height: 750px) {
     max-height: 100vh;
     overflow: hidden;
   }
 }
 
-.pokemon-dashboard__header {
-  max-width: 1600px;
-  margin: 0 auto 16px;
-  padding: 24px 24px 12px;
+/* Sticky header + mobile controls */
+.pokemon-dashboard__sticky-container {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.pokemon-dashboard__header-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  justify-content: center;
+.pokemon-dashboard__sticky-container--sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
 
-  @media (max-width: 768px) {
-    align-items: flex-start;
+.pokemon-dashboard__sticky-container--hidden {
+  transform: translateY(-100%);
+}
+
+.pokemon-dashboard__controls-wrapper {
+  &--mobile {
+    padding: 0 16px 10px;
+
+    @media (max-width: 768px) {
+      padding: 0 12px 8px;
+    }
+  }
+
+  &--desktop {
+    margin-bottom: 8px;
+    display: flex;
+
+    max-width: 1600px;
+    width: 100%;
+    align-self: center;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    padding-bottom: 8px;
   }
 }
 
-.pokemon-dashboard__emoji {
-  font-size: 2.5rem;
-  display: inline-block;
+.pokemon-dashboard__sticky-spacer {
+  height: 210px;
 
   @media (max-width: 768px) {
-    font-size: 2.1rem;
-  }
-}
-
-.pokemon-dashboard__header h1 {
-  font-size: clamp(2.2rem, 3.5vw, 3rem);
-  font-weight: 700;
-  background: linear-gradient(135deg, #56bdf8 0%, #3b82f6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0 0 6px 0;
-  letter-spacing: -0.02em;
-}
-
-.pokemon-dashboard__header p {
-  color: rgba(148, 163, 184, 0.85);
-  font-size: 1rem;
-  margin: 0;
-
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
+    height: 180px;
   }
 }
 
@@ -188,13 +177,16 @@ const totalPokemonCount = computed(() => store.totalPokemonCount)
   width: 100%;
   align-self: center;
   padding: 0 16px 16px;
-  flex: 4;
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
+
+  @media (max-width: 768px) {
+    padding: 0 12px 12px;
+  }
 }
 
-/* Inner scroll for desktop */
 .pokemon-dashboard__content {
   flex: 1;
   min-height: 0;

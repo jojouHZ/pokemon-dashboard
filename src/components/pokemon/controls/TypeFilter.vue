@@ -10,7 +10,7 @@
       "
       class="type-filter__select"
     >
-      <option value="">All Types</option>
+      <option value="">🏷️Types</option>
       <option value="normal">Normal</option>
       <option value="fire">Fire</option>
       <option value="water">Water</option>

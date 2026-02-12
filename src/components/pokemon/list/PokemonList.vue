@@ -2,8 +2,11 @@
   <div class="pokemon-list">
     <!-- Loading state -->
     <div v-if="props.loading" class="pokemon-list__loading">
-      <div class="spinner"></div>
-      <p>Loading Pokémon...</p>
+      <RetryIndicator v-if="listStore.isRetrying" :current-attempt="listStore.currentAttempt" />
+      <template v-else>
+        <LoadingSpinner />
+        <p>Loading Pokémon...</p>
+      </template>
     </div>
 
     <!-- Error state -->
@@ -28,13 +31,30 @@
         />
       </div>
     </div>
+    <!-- Background loading progress (after initial load) -->
+    <ProgressBar
+      v-if="listStore.isBackgroundLoading && props.items.length > 0"
+      :progress="listStore.backgroundLoadingProgress"
+      :label="`Loading Pokémon... ${listStore.backgroundLoadingProgress}%`"
+      :visible="progressBarVisible"
+      @close="handleCloseProgress"
+    />
+    <InfiniteScrollLoader v-if="showInfiniteLoader" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useBreakpoint } from '@/composables'
 import type { PokemonListItem as PokemonListItemType } from '@/types/pokemon'
 import { usePokemonListStore } from '@/stores/pokemonListStore'
 import { PokemonListItem } from '@/components/pokemon/list'
+import {
+  LoadingSpinner,
+  RetryIndicator,
+  ProgressBar,
+  InfiniteScrollLoader,
+} from '@/components/pokemon/ui'
 
 const listStore = usePokemonListStore()
 
@@ -48,8 +68,25 @@ interface Emits {
   (event: 'retry'): void
   (event: 'select', pokemon: PokemonListItemType): void
 }
+
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+const progressBarVisible = ref(true)
+
+const handleCloseProgress = () => {
+  progressBarVisible.value = false
+}
+
+const { type: breakpoint } = useBreakpoint()
+
+const showInfiniteLoader = computed(() => {
+  const isMobileOrTablet = breakpoint.value !== 'desktop'
+  const hasMore = listStore.loadedCount < listStore.filteredPokemon.length
+  const hasItems = props.items.length > 0
+
+  return isMobileOrTablet && hasMore && hasItems
+})
 </script>
 
 <style scoped lang="scss">
