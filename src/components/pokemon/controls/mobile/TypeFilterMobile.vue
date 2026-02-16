@@ -1,6 +1,5 @@
 <template>
   <div class="type-filter-mobile">
-    <!-- Спойлер-кнопка -->
     <button
       @click="toggleExpanded"
       class="type-filter-mobile__toggle"
@@ -8,10 +7,15 @@
     >
       <span class="type-filter-mobile__toggle-label">
         🏷️ Types
-        <span v-if="selectedType" class="type-filter-mobile__badge">
-          {{ capitalize(selectedType) }}
+        <span v-if="selectedCount === 0" class="type-filter-mobile__badge"> All </span>
+        <span v-else-if="selectedCount === 1" class="type-filter-mobile__badge">
+          {{ capitalize(selectedTypes[0]!) }}
+        </span>
+        <span v-else class="type-filter-mobile__badge type-filter-mobile__badge--count">
+          {{ selectedCount }} selected
         </span>
       </span>
+
       <svg
         class="type-filter-mobile__arrow"
         :class="{ 'type-filter-mobile__arrow--rotated': isExpanded }"
@@ -26,15 +30,16 @@
       </svg>
     </button>
 
-    <!-- Horizontal scroll с чипсами -->
     <Transition name="slide-down">
       <div v-if="isExpanded" class="type-filter-mobile__chips-wrapper">
         <div class="type-filter-mobile__chips">
+          <TypeChip type="all" :active="isAllActive" @click="handleAllClick" />
+
           <TypeChip
             v-for="type in POKEMON_TYPES"
             :key="type"
             :type="type"
-            :active="selectedType === type"
+            :active="isTypeSelected(type)"
             @click="handleTypeClick(type)"
           />
         </div>
@@ -44,44 +49,46 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, capitalize } from 'vue'
+import { ref, computed } from 'vue'
 import type { PokemonTypeName } from '@/types/pokemon'
 import { POKEMON_TYPES } from '@/types/pokemon'
 import TypeChip from '../TypeChip.vue'
 
 interface Props {
-  modelValue: PokemonTypeName | null
+  selectedTypes: PokemonTypeName[]
+  isAllActive: boolean
 }
 
 interface Emits {
-  (event: 'update:modelValue', value: PokemonTypeName | null): void
+  (event: 'toggle-type', type: PokemonTypeName): void
+  (event: 'clear-all'): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const selectedType = ref(props.modelValue)
 const isExpanded = ref(false)
 
-watch(
-  () => props.modelValue,
-  (newVal) => {
-    selectedType.value = newVal
-  },
-)
+const selectedCount = computed(() => props.selectedTypes.length)
+
+const isTypeSelected = (type: PokemonTypeName): boolean => {
+  return props.selectedTypes.includes(type)
+}
 
 const toggleExpanded = () => {
   isExpanded.value = !isExpanded.value
 }
 
 const handleTypeClick = (type: PokemonTypeName) => {
-  if (selectedType.value === type) {
-    selectedType.value = null
-    emit('update:modelValue', null)
-  } else {
-    selectedType.value = type
-    emit('update:modelValue', type)
-  }
+  emit('toggle-type', type)
+}
+
+const handleAllClick = () => {
+  emit('clear-all')
+}
+
+const capitalize = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1)
 }
 </script>
 
@@ -90,97 +97,103 @@ const handleTypeClick = (type: PokemonTypeName) => {
   width: 100%;
   max-width: 100%;
   overflow: hidden;
-}
 
-.type-filter-mobile__toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 10px 14px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 8px;
-  color: #e5e7eb;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  &__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 8px;
+    color: #e5e7eb;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
 
-  &:hover {
-    border-color: rgba(56, 189, 248, 0.5);
+    &:hover {
+      border-color: rgba(56, 189, 248, 0.5);
+    }
+
+    &--open {
+      border-color: rgba(56, 189, 248, 0.6);
+      background: rgba(56, 189, 248, 0.05);
+    }
   }
 
-  &--open {
-    border-color: rgba(56, 189, 248, 0.6);
-    background: rgba(56, 189, 248, 0.05);
+  &__toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-}
 
-.type-filter-mobile__toggle-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+  &__badge {
+    padding: 2px 8px;
+    background: rgba(56, 189, 248, 0.2);
+    border-radius: 999px;
+    font-size: 12px;
+    color: #38bdf8;
 
-.type-filter-mobile__badge {
-  padding: 2px 8px;
-  background: rgba(56, 189, 248, 0.2);
-  border-radius: 999px;
-  font-size: 12px;
-  color: #38bdf8;
-}
-
-.type-filter-mobile__arrow {
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-
-  &--rotated {
-    transform: rotate(180deg);
+    &--count {
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+      font-weight: 600;
+    }
   }
-}
 
-.type-filter-mobile__chips-wrapper {
-  margin-top: 8px;
-  width: 100%;
-  max-width: 100%;
-}
+  &__arrow {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
 
-.type-filter-mobile__chips {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  padding: 8px 0;
-}
+    &--rotated {
+      transform: rotate(180deg);
+    }
+  }
 
-/* Slide down animation */
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
+  &__chips-wrapper {
+    margin-top: 8px;
+    width: 100%;
+    max-width: 100%;
+  }
 
-.slide-down-enter-from {
-  opacity: 0;
-  max-height: 0;
-  transform: translateY(-10px);
-}
+  &__chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px 0;
+  }
 
-.slide-down-enter-to {
-  opacity: 1;
-  max-height: 200px;
-  transform: translateY(0);
-}
+  // Slide down animation
+  .slide-down-enter-active,
+  .slide-down-leave-active {
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
 
-.slide-down-leave-from {
-  opacity: 1;
-  max-height: 200px;
-  transform: translateY(0);
-}
+  .slide-down-enter-from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
 
-.slide-down-leave-to {
-  opacity: 0;
-  max-height: 0;
-  transform: translateY(-10px);
+  .slide-down-enter-to {
+    opacity: 1;
+    max-height: 200px;
+    transform: translateY(0);
+  }
+
+  .slide-down-leave-from {
+    opacity: 1;
+    max-height: 200px;
+    transform: translateY(0);
+  }
+
+  .slide-down-leave-to {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
 }
 </style>

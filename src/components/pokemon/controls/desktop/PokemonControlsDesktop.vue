@@ -25,7 +25,12 @@
     </div>
     <div class="pokemon-controls-desktop__wrapper-bot">
       <div class="pokemon-controls-desktop__filter">
-        <TypeFilterDesktop v-model="selectedType" @update:model-value="handleTypeChange" />
+        <TypeFilterDesktop
+          :selected-types="selectedTypes"
+          :is-all-active="isAllActive"
+          @toggle-type="handleTypeToggle"
+          @clear-all="handleClearTypes"
+        />
       </div>
     </div>
   </div>
@@ -41,13 +46,15 @@ import { useDebounce } from '@/composables/useDebounce'
 
 interface Props {
   searchQuery: string
-  selectedType: PokemonTypeName | null
+  selectedTypes: PokemonTypeName[]
+  isAllActive: boolean
   totalResults: number
 }
 
 interface Emits {
   (event: 'search', query: string): void
-  (event: 'filter', type: PokemonTypeName | null): void
+  (event: 'toggle-type', type: PokemonTypeName): void
+  (event: 'clear-types'): void
   (event: 'clear'): void
 }
 
@@ -55,7 +62,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const localSearch = ref(props.searchQuery)
-const selectedType = ref(props.selectedType)
+const selectedTypes = ref(props.selectedTypes)
 
 const debouncedSearch = useDebounce(localSearch, DEBOUNCE_DELAYS.SEARCH)
 
@@ -71,24 +78,26 @@ watch(
 )
 
 watch(
-  () => props.selectedType,
+  () => props.selectedTypes,
   (newVal) => {
-    selectedType.value = newVal
+    selectedTypes.value = newVal
   },
 )
 
-const handleTypeChange = (type: PokemonTypeName | null) => {
-  selectedType.value = type
-  emit('filter', type)
+const handleTypeToggle = (type: PokemonTypeName) => {
+  emit('toggle-type', type)
+}
+
+const handleClearTypes = () => {
+  emit('clear-types')
 }
 
 const handleClearFilters = () => {
   localSearch.value = ''
-  selectedType.value = null
   emit('clear')
 }
 
-const hasActiveFilters = computed(() => props.searchQuery !== '' || props.selectedType !== null)
+const hasActiveFilters = computed(() => props.searchQuery !== '' || props.selectedTypes.length > 0)
 </script>
 
 <style scoped lang="scss">

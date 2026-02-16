@@ -7,7 +7,7 @@ import { useResponsivePagination } from './useResponsivePagination'
 import { useBreakpoint } from './useBreakpoint'
 import { useInfiniteScroll } from './useInfiniteScroll'
 import { useScrollDirection } from './useScrollDirection'
-import type { PokemonListItem } from '@/types/pokemon/list'
+import type { PokemonListItem } from '@/types/pokemon'
 
 /**
  * Main composable for Pokemon Dashboard page
@@ -20,8 +20,16 @@ export function usePokemonDashboard() {
   const listStore = usePokemonListStore()
 
   // ====== Composables ======
-  const { searchQuery, selectedType, totalResults, setSearchQuery, setSelectedType, clearFilters } =
-    usePokemonFilters()
+  const {
+    searchQuery,
+    selectedTypes,
+    totalResults,
+    setSearchQuery,
+    toggleSelectedType,
+    clearSelectedTypes,
+    clearFilters,
+  } = usePokemonFilters()
+
   const { itemsPerPage } = useResponsivePagination()
   const { type: breakpoint } = useBreakpoint()
   const { isScrollingDown, isAtTop } = useScrollDirection({ threshold: 10 })
@@ -88,7 +96,7 @@ export function usePokemonDashboard() {
   return {
     // State
     searchQuery,
-    selectedType,
+    selectedTypes,
     totalResults,
     displayedPokemon,
     totalPokemonCount,
@@ -104,7 +112,8 @@ export function usePokemonDashboard() {
 
     // Actions
     setSearchQuery,
-    setSelectedType,
+    toggleSelectedType,
+    clearSelectedTypes,
     clearFilters,
     handleRetry,
     handleSelectPokemon,

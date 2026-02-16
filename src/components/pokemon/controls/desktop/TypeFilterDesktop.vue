@@ -1,11 +1,15 @@
 <template>
   <div class="type-filter-desktop">
+    <div v-if="selectedCount > 0" class="type-filter-desktop__counter">
+      {{ selectedCount }} {{ selectedCount === 1 ? 'type' : 'types' }} selected
+    </div>
     <div class="type-filter-desktop__chips">
+      <TypeChip type="all" :active="isAllActive" @click="handleAllClick" />
       <TypeChip
         v-for="type in POKEMON_TYPES"
         :key="type"
         :type="type"
-        :active="selectedType === type"
+        :active="isTypeSelected(type)"
         @click="handleTypeClick(type)"
       />
     </div>
@@ -13,40 +17,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 import type { PokemonTypeName } from '@/types/pokemon'
 import { POKEMON_TYPES } from '@/types/pokemon'
 import TypeChip from '../TypeChip.vue'
 
 interface Props {
-  modelValue: PokemonTypeName | null
+  selectedTypes: PokemonTypeName[]
+  isAllActive: boolean
 }
 
 interface Emits {
-  (event: 'update:modelValue', value: PokemonTypeName | null): void
+  (event: 'toggle-type', type: PokemonTypeName): void
+  (event: 'clear-all'): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const selectedType = ref(props.modelValue)
+const selectedCount = computed(() => props.selectedTypes.length)
 
-watch(
-  () => props.modelValue,
-  (newVal) => {
-    selectedType.value = newVal
-  },
-)
+const isTypeSelected = (type: PokemonTypeName): boolean => {
+  return props.selectedTypes.includes(type)
+}
 
 const handleTypeClick = (type: PokemonTypeName) => {
-  // Toggle: если уже выбран — deselect
-  if (selectedType.value === type) {
-    selectedType.value = null
-    emit('update:modelValue', null)
-  } else {
-    selectedType.value = type
-    emit('update:modelValue', type)
-  }
+  emit('toggle-type', type)
+}
+
+const handleAllClick = () => {
+  emit('clear-all')
 }
 </script>
 

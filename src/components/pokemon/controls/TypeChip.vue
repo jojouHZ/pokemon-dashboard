@@ -1,26 +1,30 @@
 <template>
   <button
     class="type-chip"
-    :class="[`type-chip--${type}`, { 'type-chip--active': active }]"
+    :class="{
+      [`type-chip--${type}`]: !isAll,
+      'type-chip--all': isAll,
+      'type-chip--active': active,
+    }"
     @click="$emit('click')"
   >
-    <TypeIcon :type="type" :size="size" />
-    <span class="type-chip__label">{{ capitalize(type) }}</span>
+    <TypeIcon v-if="!isAll && pokemonType" :type="pokemonType" :size="size" />
+    <span class="type-chip__label">{{ label }}</span>
   </button>
 </template>
 
 <script setup lang="ts">
-import { capitalize } from 'vue'
+import { computed } from 'vue'
 import type { PokemonTypeName } from '@/types/pokemon'
 import { TypeIcon } from '@/components/pokemon/icons'
 
 interface Props {
-  type: PokemonTypeName
+  type: PokemonTypeName | 'all'
   active?: boolean
   size?: 'small' | 'medium'
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   active: false,
   size: 'small',
 })
@@ -28,6 +32,17 @@ withDefaults(defineProps<Props>(), {
 defineEmits<{
   (event: 'click'): void
 }>()
+
+const isAll = computed(() => props.type === 'all')
+
+const pokemonType = computed(() => {
+  return props.type !== 'all' ? props.type : undefined
+})
+
+const label = computed(() => {
+  if (isAll.value) return 'All'
+  return props.type.charAt(0).toUpperCase() + props.type.slice(1)
+})
 </script>
 
 <style scoped lang="scss">
@@ -59,6 +74,18 @@ defineEmits<{
     transform: translateY(0);
   }
 
+  &--all {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.3);
+    color: #818cf8;
+    font-weight: 600;
+
+    &:hover {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+  }
+
   &--active {
     background: rgba(56, 189, 248, 0.2);
     border-color: rgba(56, 189, 248, 0.5);
@@ -70,18 +97,23 @@ defineEmits<{
       border-color: rgba(56, 189, 248, 0.6);
     }
   }
-}
 
-.type-chip__label {
-  line-height: 1;
-}
+  &--all.type-chip--active {
+    background: rgba(99, 102, 241, 0.25);
+    border-color: rgba(99, 102, 241, 0.6);
+    color: #a5b4fc;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
 
-/* Touch optimization for mobile */
-@media (max-width: 768px) {
-  .type-chip {
-    padding: 8px 12px; // на mobile можно больше для тача
+  &__label {
+    line-height: 1;
+  }
+
+  // Touch optimization for mobile
+  @media (max-width: 768px) {
+    padding: 8px 12px; // mobile
     font-size: 13px;
-    min-height: 40px; /* iOS touch target */
+    min-height: 40px; // iOS touch target
   }
 }
 </style>

@@ -7,7 +7,8 @@ import TypeFilterMobile from '@/components/pokemon/controls/mobile/TypeFilterMob
 describe('PokemonControlsDesktop', () => {
   const defaultProps = {
     searchQuery: '',
-    selectedType: null,
+    selectedTypes: [],
+    isAllActive: true,
     totalResults: 0,
   }
 
@@ -48,10 +49,10 @@ describe('PokemonControlsDesktop', () => {
 
     const typeFilter = wrapper.findComponent(TypeFilterMobile)
 
-    await typeFilter.vm.$emit('update:modelValue', 'fire')
+    await typeFilter.vm.$emit('toggle-type', 'fire')
 
-    expect(wrapper.emitted('filter')).toBeTruthy()
-    expect(wrapper.emitted('filter')?.[0]).toEqual(['fire'])
+    expect(wrapper.emitted('toggle-type')).toBeTruthy()
+    expect(wrapper.emitted('toggle-type')?.[0]).toEqual(['fire'])
   })
 
   // Clear Filters -> emit 'clear'
@@ -59,7 +60,8 @@ describe('PokemonControlsDesktop', () => {
     const wrapper = mount(PokemonControlsMobile, {
       props: {
         searchQuery: 'char',
-        selectedType: 'fire',
+        selectedTypes: ['fire'],
+        isAllActive: false,
         totalResults: 10,
       },
     })

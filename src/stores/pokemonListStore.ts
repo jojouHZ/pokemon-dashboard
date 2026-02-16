@@ -11,7 +11,8 @@ import { useLocalCache } from '@/composables/useLocalCache'
 export const usePokemonListStore = defineStore('pokemonList', () => {
   const pokemonList = ref<PokemonListItem[]>([])
   const searchQuery = ref('')
-  const selectedType = ref<PokemonTypeName | null>(null)
+  const selectedTypes = ref<PokemonTypeName[]>([])
+
   const currentPage = ref(CURRENT_PAGE_INITIAL.DEFAULT)
   const itemsPerPage = ref<number>(ITEMS_PER_PAGE.DEFAULT)
   const loading = ref(false)
@@ -26,6 +27,7 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
   })
   const backgroundLoadingProgress = ref(0) // 0-100%
   const isBackgroundLoading = ref(false)
+  const isAllActive = computed(() => selectedTypes.value.length === 0)
 
   // Actions
   /**
@@ -99,14 +101,26 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
     currentPage.value = CURRENT_PAGE_INITIAL.DEFAULT
   }
 
-  function setSelectedType(type: PokemonTypeName | null) {
-    selectedType.value = type
+  function toggleSelectedType(type: PokemonTypeName) {
+    const index = selectedTypes.value.indexOf(type)
+
+    if (index > -1) {
+      selectedTypes.value.splice(index, 1)
+    } else {
+      selectedTypes.value.push(type)
+    }
+
+    currentPage.value = CURRENT_PAGE_INITIAL.DEFAULT
+  }
+
+  function clearSelectedTypes() {
+    selectedTypes.value = []
     currentPage.value = CURRENT_PAGE_INITIAL.DEFAULT
   }
 
   function clearFilters() {
     searchQuery.value = ''
-    selectedType.value = null
+    selectedTypes.value = []
     currentPage.value = CURRENT_PAGE_INITIAL.DEFAULT
   }
 
@@ -132,9 +146,10 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
       }
 
       // Filter by type
-      if (selectedType.value) {
+      if (selectedTypes.value.length > 0) {
+        const selectedSet = new Set(selectedTypes.value.map((t) => t.toLowerCase()))
         filtered = filtered.filter((pokemon) =>
-          pokemon.types.some((type) => type.toLowerCase() === selectedType.value?.toLowerCase()),
+          pokemon.types.some((type) => selectedSet.has(type.toLowerCase())),
         )
       }
 
@@ -177,9 +192,13 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
   }
 
   // Watch filters to reset infinite scroll
-  watch([searchQuery, selectedType], () => {
-    resetInfiniteScroll()
-  })
+  watch(
+    [searchQuery, selectedTypes],
+    () => {
+      resetInfiniteScroll()
+    },
+    { deep: true },
+  )
 
   // Init
   loadPokemonList()
@@ -188,7 +207,7 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
     // State
     pokemonList,
     searchQuery,
-    selectedType,
+    selectedTypes,
     currentPage,
     itemsPerPage,
     loading,
@@ -206,6 +225,9 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
     loadedCount,
     hasMore,
 
+    // Active all type filter state
+    isAllActive,
+
     // Getters
     filteredPokemon,
     displayedPokemon,
@@ -216,7 +238,8 @@ export const usePokemonListStore = defineStore('pokemonList', () => {
     // Actions
     loadPokemonList,
     setSearchQuery,
-    setSelectedType,
+    toggleSelectedType,
+    clearSelectedTypes,
     clearFilters,
     setPage,
     setItemsPerPage,

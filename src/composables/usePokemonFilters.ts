@@ -7,13 +7,13 @@ import { storeToRefs } from 'pinia'
 
 interface UsePokemonFiltersReturn {
   searchQuery: Ref<string>
-  selectedType: Ref<PokemonTypeName | null>
-
+  selectedTypes: Ref<PokemonTypeName[]>
   totalResults: number
   hasResults: boolean
 
   setSearchQuery: (query: string) => void
-  setSelectedType: (type: PokemonTypeName | null) => void
+  toggleSelectedType: (type: PokemonTypeName) => void
+  clearSelectedTypes: () => void
   clearFilters: () => void
 }
 /**
@@ -26,20 +26,23 @@ interface UsePokemonFiltersReturn {
  */
 export function usePokemonFilters(): UsePokemonFiltersReturn {
   const listStore = usePokemonListStore()
-  const { searchQuery, selectedType } = storeToRefs(listStore)
+  const { searchQuery, selectedTypes } = storeToRefs(listStore)
   const totalResults = listStore.totalResults
   const hasResults = listStore.hasResults
   const setSearchQuery = (query: string) => listStore.setSearchQuery(query)
-  const setSelectedType = (type: PokemonTypeName | null) => listStore.setSelectedType(type)
   const clearFilters = () => listStore.clearFilters()
 
   return {
+    // State
     searchQuery,
-    selectedType: selectedType as Ref<PokemonTypeName | null>,
+    selectedTypes,
     totalResults,
     hasResults,
+
+    // Actions
     setSearchQuery,
-    setSelectedType,
+    toggleSelectedType: listStore.toggleSelectedType,
+    clearSelectedTypes: listStore.clearSelectedTypes,
     clearFilters,
   }
 }

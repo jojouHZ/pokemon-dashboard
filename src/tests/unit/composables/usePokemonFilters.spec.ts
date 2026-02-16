@@ -4,11 +4,12 @@ import { usePokemonFilters } from '@/composables/usePokemonFilters'
 import type { PokemonTypeName } from '@/types/pokemon'
 
 const mockSetSearchQuery = vi.fn()
-const mockSetSelectedType = vi.fn()
+const mockToggleSelectedType = vi.fn()
+const mockClearSelectedTypes = vi.fn()
 const mockClearFilters = vi.fn()
 
 const searchQueryRef = ref('')
-const selectedTypeRef = ref<PokemonTypeName | null>(null)
+const selectedTypesRef = ref<PokemonTypeName[]>([])
 let totalResults = 0
 let hasResults = false
 
@@ -16,11 +17,12 @@ vi.mock('@/stores/pokemonListStore', () => {
   return {
     usePokemonListStore: () => ({
       searchQuery: searchQueryRef,
-      selectedType: selectedTypeRef,
+      selectedTypes: selectedTypesRef,
       totalResults,
       hasResults,
       setSearchQuery: mockSetSearchQuery,
-      setSelectedType: mockSetSelectedType,
+      toggleSelectedType: mockToggleSelectedType,
+      clearSelectedTypes: mockClearSelectedTypes,
       clearFilters: mockClearFilters,
     }),
   }
@@ -30,7 +32,7 @@ describe('usePokemonFilters', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     searchQueryRef.value = ''
-    selectedTypeRef.value = null
+    selectedTypesRef.value = []
     totalResults = 0
     hasResults = false
   })
@@ -44,12 +46,12 @@ describe('usePokemonFilters', () => {
     expect(mockSetSearchQuery).toHaveBeenCalledWith('pikachu')
   })
 
-  it('delegates setSelectedType to store.setSelectedType', () => {
+  it('delegates toggleSelectedType to store.toggleSelectedType', () => {
     const filters = usePokemonFilters()
 
-    filters.setSelectedType('ice')
-    expect(mockSetSelectedType).toHaveBeenCalledTimes(1)
-    expect(mockSetSelectedType).toHaveBeenCalledWith('ice')
+    filters.toggleSelectedType('ice')
+    expect(mockToggleSelectedType).toHaveBeenCalledTimes(1)
+    expect(mockToggleSelectedType).toHaveBeenCalledWith('ice')
   })
 
   it('delegates clearFilters to store.clearFilters', () => {
@@ -71,11 +73,11 @@ describe('usePokemonFilters', () => {
   it('reactively proxies selectedType from the store', async () => {
     const filters = usePokemonFilters()
 
-    expect(filters.selectedType.value).toBeNull()
+    expect(filters.selectedTypes.value).toEqual([])
 
-    selectedTypeRef.value = 'water'
+    selectedTypesRef.value = ['water']
 
-    expect(filters.selectedType.value).toBe('water')
+    expect(filters.selectedTypes.value).toEqual(['water'])
   })
 
   it('proxies initial totalResults and hasResults from the store', () => {

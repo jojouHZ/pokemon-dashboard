@@ -7,7 +7,8 @@ import TypeFilterDesktop from '@/components/pokemon/controls/desktop/TypeFilterD
 describe('PokemonControlsDesktop', () => {
   const defaultProps = {
     searchQuery: '',
-    selectedType: null,
+    selectedTypes: [],
+    isAllActive: true,
     totalResults: 0,
   }
 
@@ -49,11 +50,10 @@ describe('PokemonControlsDesktop', () => {
     })
 
     const typeFilter = wrapper.findComponent(TypeFilterDesktop)
+    await typeFilter.vm.$emit('toggle-type', 'fire')
 
-    await typeFilter.vm.$emit('update:modelValue', 'fire')
-
-    expect(wrapper.emitted('filter')).toBeTruthy()
-    expect(wrapper.emitted('filter')?.[0]).toEqual(['fire'])
+    expect(wrapper.emitted('toggle-type')).toBeTruthy()
+    expect(wrapper.emitted('toggle-type')?.[0]).toEqual(['fire'])
   })
 
   // Clear Filters -> emit 'clear'
@@ -61,7 +61,8 @@ describe('PokemonControlsDesktop', () => {
     const wrapper = mount(PokemonControlsDesktop, {
       props: {
         searchQuery: 'char',
-        selectedType: 'fire',
+        selectedTypes: ['fire'],
+        isAllActive: false,
         totalResults: 10,
       },
     })
@@ -81,7 +82,8 @@ describe('PokemonControlsDesktop', () => {
     const wrapper = mount(PokemonControlsDesktop, {
       props: {
         searchQuery: '',
-        selectedType: null,
+        selectedTypes: [],
+        isAllActive: true,
         totalResults: 42,
       },
     })

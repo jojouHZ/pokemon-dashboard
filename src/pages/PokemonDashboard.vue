@@ -18,9 +18,11 @@
       <div class="pokemon-dashboard__controls-wrapper pokemon-dashboard__controls-wrapper--mobile">
         <PokemonControlsMobile
           :search-query="searchQuery"
-          :selected-type="selectedType"
+          :selected-types="selectedTypes"
+          :is-all-active="listStore.isAllActive"
           @search="setSearchQuery"
-          @filter="setSelectedType"
+          @toggle-type="toggleSelectedType"
+          @clear-types="clearSelectedTypes"
           @clear="clearFilters"
         />
       </div>
@@ -44,10 +46,12 @@
     >
       <PokemonControlsDesktop
         :search-query="searchQuery"
-        :selected-type="selectedType"
+        :selected-types="selectedTypes"
+        :is-all-active="listStore.isAllActive"
         :total-results="totalResults"
         @search="setSearchQuery"
-        @filter="setSelectedType"
+        @toggle-type="toggleSelectedType"
+        @clear-types="clearSelectedTypes"
         @clear="clearFilters"
       />
     </div>
@@ -88,7 +92,7 @@ import { usePokemonDashboard } from '@/composables'
 
 const {
   searchQuery,
-  selectedType,
+  selectedTypes,
   totalResults,
   displayedPokemon,
   totalPokemonCount,
@@ -98,7 +102,8 @@ const {
   headerIsHidden,
   listStore,
   setSearchQuery,
-  setSelectedType,
+  toggleSelectedType,
+  clearSelectedTypes,
   clearFilters,
   handleRetry,
   handleSelectPokemon,
