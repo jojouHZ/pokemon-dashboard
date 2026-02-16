@@ -1,37 +1,31 @@
 <template>
   <div class="pokemon-controls-desktop">
-    <div class="pokemon-controls-desktop__info">
-      <span v-if="hasActiveFilters" class="pokemon-controls-desktop__result-count">
-        Found {{ totalResults }} Pokémon
-      </span>
-      <span v-else class="pokemon-controls-desktop__total-count">
-        {{ totalResults }} Pokémon available
-      </span>
-    </div>
+    <div class="pokemon-controls-desktop__wrapper-top">
+      <div class="pokemon-controls-desktop__controls">
+        <button
+          class="pokemon-controls-desktop__clear-btn"
+          :class="{ 'pokemon-controls-desktop__clear-btn--hidden': !hasActiveFilters }"
+          @click="hasActiveFilters && handleClearFilters()"
+        >
+          ✕ <span>Clear Filters</span>
+        </button>
 
-    <div class="pokemon-controls-desktop__selected-types">
-      <div class="pokemon-controls-desktop__tags">
-        <span v-if="selectedType" class="pokemon-controls-desktop__type-pill">
-          🏷️ {{ capitalize(selectedType) }}
+        <div class="pokemon-controls-desktop__search">
+          <SearchInput v-model="localSearch" />
+        </div>
+      </div>
+    </div>
+    <div class="pokemon-controls-desktop__wrapper-bot">
+      <div class="pokemon-controls-desktop__info">
+        <span v-if="hasActiveFilters" class="pokemon-controls-desktop__result-count">
+          Found {{ totalResults }} Pokémon
+        </span>
+        <span v-else class="pokemon-controls-desktop__total-count">
+          {{ totalResults }} Pokémon available
         </span>
       </div>
-    </div>
-
-    <div class="pokemon-controls-desktop__controls">
-      <button
-        class="pokemon-controls-desktop__clear-btn"
-        :class="{ 'pokemon-controls-desktop__clear-btn--hidden': !hasActiveFilters }"
-        @click="hasActiveFilters && handleClearFilters()"
-      >
-        ✕ <span>Clear Filters</span>
-      </button>
-
-      <div class="pokemon-controls-desktop__search">
-        <SearchInput v-model="localSearch" />
-      </div>
-
       <div class="pokemon-controls-desktop__filter">
-        <TypeFilter v-model="selectedType" @update:model-value="handleTypeChange" />
+        <TypeFilterDesktop v-model="selectedType" @update:model-value="handleTypeChange" />
       </div>
     </div>
   </div>
@@ -39,8 +33,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import SearchInput from './SearchInput.vue'
-import TypeFilter from './TypeFilter.vue'
+import SearchInput from '../SearchInput.vue'
+import TypeFilterDesktop from './TypeFilterDesktop.vue'
 import type { PokemonTypeName } from '@/types/pokemon'
 import { DEBOUNCE_DELAYS } from '@/constants'
 import { useDebounce } from '@/composables/useDebounce'
@@ -95,20 +89,29 @@ const handleClearFilters = () => {
 }
 
 const hasActiveFilters = computed(() => props.searchQuery !== '' || props.selectedType !== null)
-
-const capitalize = (str: string) => {
-  return str.charAt(0).toUpperCase() + str.slice(1)
-}
 </script>
 
 <style scoped lang="scss">
 .pokemon-controls-desktop {
-  display: grid;
-  grid-template-columns: max-content 1fr max-content;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   padding: 8px 0 4px;
+}
+
+.pokemon-controls-desktop__wrapper-top {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 16px;
+  padding: 0;
   width: 100%;
+}
+
+.pokemon-controls-desktop__wrapper-bot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .pokemon-controls-desktop__info {
@@ -125,9 +128,6 @@ const capitalize = (str: string) => {
   color: rgba(148, 163, 184, 0.7);
 }
 
-.pokemon-controls-desktop__selected-types {
-  min-height: 24px;
-}
 .pokemon-controls-desktop__tags {
   display: flex;
   justify-content: flex-start;
@@ -146,19 +146,18 @@ const capitalize = (str: string) => {
 }
 
 .pokemon-controls-desktop__controls {
-  display: grid;
-  grid-template-columns: auto auto 1fr;
-  column-gap: 8px;
+  display: flex;
+  gap: 8px;
   align-items: center;
-  justify-content: end;
+  flex-shrink: 0;
 }
 
 .pokemon-controls-desktop__search {
-  width: 100%;
-}
+  width: 280px;
 
-.pokemon-controls-desktop__filter {
-  width: 100%;
+  @media (max-width: 1200px) {
+    width: 220px;
+  }
 }
 
 .pokemon-controls-desktop__clear-btn {

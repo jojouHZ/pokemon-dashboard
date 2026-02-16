@@ -35,6 +35,7 @@
 
 <script setup lang="ts">
 import type { PokemonTypeName } from '@/types/pokemon'
+
 interface Props {
   modelValue: PokemonTypeName | null
 }

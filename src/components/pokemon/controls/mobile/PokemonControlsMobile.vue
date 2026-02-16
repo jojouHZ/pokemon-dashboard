@@ -1,14 +1,9 @@
 <template>
   <div class="pokemon-controls-mobile">
-    <div class="pokemon-controls-mobile__wrapper">
+    <div class="pokemon-controls-mobile__wrapper-top">
       <!-- Search Input -->
       <div class="pokemon-controls-mobile__search">
         <SearchInput v-model="localSearch" />
-      </div>
-
-      <!-- Type Filter -->
-      <div class="pokemon-controls-mobile__filter">
-        <TypeFilter v-model="selectedType" @update:model-value="handleTypeChange" />
       </div>
 
       <!-- Clear Button -->
@@ -20,13 +15,20 @@
         ✕
       </button>
     </div>
+
+    <!-- Type Filter -->
+    <div class="pokemon-controls-mobile__wrapper-bot">
+      <div class="pokemon-controls-mobile__filter">
+        <TypeFilterMobile v-model="selectedType" @update:model-value="handleTypeChange" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import SearchInput from './SearchInput.vue'
-import TypeFilter from './TypeFilter.vue'
+import SearchInput from '../SearchInput.vue'
+import TypeFilterMobile from './TypeFilterMobile.vue'
 import type { PokemonTypeName } from '@/types/pokemon'
 import { DEBOUNCE_DELAYS } from '@/constants'
 import { useDebounce } from '@/composables/useDebounce'
@@ -49,6 +51,8 @@ const localSearch = ref(props.searchQuery)
 const selectedType = ref(props.selectedType)
 
 const debouncedSearch = useDebounce(localSearch, DEBOUNCE_DELAYS.SEARCH)
+
+const isTypePanelOpen = ref(false)
 
 watch(debouncedSearch, (newValue) => {
   emit('search', newValue)
@@ -92,7 +96,15 @@ const hasActiveFilters = computed(() => props.searchQuery !== '' || props.select
   width: 100%;
 }
 
-.pokemon-controls-mobile__wrapper {
+.pokemon-controls-mobile__wrapper-top {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.pokemon-controls-mobile__wrapper-bot {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -106,8 +118,7 @@ const hasActiveFilters = computed(() => props.searchQuery !== '' || props.select
 }
 
 .pokemon-controls-mobile__filter {
-  flex: 0 0 auto;
-  min-width: 110px;
+  width: 100%;
 }
 
 .pokemon-controls-mobile__clear-btn {
@@ -131,5 +142,26 @@ const hasActiveFilters = computed(() => props.searchQuery !== '' || props.select
   span {
     margin-left: 4px;
   }
+}
+
+.pokemon-controls-mobile__selected-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.pokemon-controls-mobile__type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 999px;
+  font-size: 13px;
+  color: rgba(56, 189, 248, 0.95);
+  font-weight: 500;
+  min-height: 32px;
 }
 </style>

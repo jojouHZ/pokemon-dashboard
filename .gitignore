@@ -34,3 +34,8 @@ coverage
 
 # Vitest
 __screenshots__/
+
+# Circular deps logs
+circular-deps
+circular-deps.html
+circular-deps.json

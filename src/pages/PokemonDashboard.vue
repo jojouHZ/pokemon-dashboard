@@ -37,23 +37,22 @@
       :is-sticky="false"
       :is-hidden="false"
     />
+    <!-- ===== DESKTOP: controls ===== -->
+    <div
+      v-if="!headerIsSticky"
+      class="pokemon-dashboard__controls-wrapper pokemon-dashboard__controls-wrapper--desktop"
+    >
+      <PokemonControlsDesktop
+        :search-query="searchQuery"
+        :selected-type="selectedType"
+        :total-results="totalResults"
+        @search="setSearchQuery"
+        @filter="setSelectedType"
+        @clear="clearFilters"
+      />
+    </div>
 
     <main class="pokemon-dashboard__main">
-      <!-- ===== DESKTOP: controls ===== -->
-      <div
-        v-if="!headerIsSticky"
-        class="pokemon-dashboard__controls-wrapper pokemon-dashboard__controls-wrapper--desktop"
-      >
-        <PokemonControlsDesktop
-          :search-query="searchQuery"
-          :selected-type="selectedType"
-          :total-results="totalResults"
-          @search="setSearchQuery"
-          @filter="setSelectedType"
-          @clear="clearFilters"
-        />
-      </div>
-
       <section class="pokemon-dashboard__content">
         <PokemonList
           :items="displayedPokemon"
@@ -152,15 +151,11 @@ const {
   }
 
   &--desktop {
-    margin-bottom: 8px;
-    display: flex;
-
     max-width: 1600px;
     width: 100%;
     align-self: center;
-
+    padding: 0 16px 8px;
     border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-    padding-bottom: 8px;
   }
 }
 
