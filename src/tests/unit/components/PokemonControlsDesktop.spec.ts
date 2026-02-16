@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { PokemonControlsDesktop } from '@/components/pokemon/controls'
 import SearchInput from '@/components/pokemon/controls/SearchInput.vue'
-import TypeFilter from '@/components/pokemon/controls/TypeFilter.vue'
+import TypeFilterDesktop from '@/components/pokemon/controls/desktop/TypeFilterDesktop.vue'
 
 describe('PokemonControlsDesktop', () => {
   const defaultProps = {
@@ -20,7 +20,7 @@ describe('PokemonControlsDesktop', () => {
     })
 
     const searchInput = wrapper.findComponent(SearchInput)
-    const typeFilter = wrapper.findComponent(TypeFilter)
+    const typeFilter = wrapper.findComponent(TypeFilterDesktop)
 
     expect(searchInput.exists()).toBe(true)
     expect(typeFilter.exists()).toBe(true)
@@ -48,7 +48,7 @@ describe('PokemonControlsDesktop', () => {
       props: defaultProps,
     })
 
-    const typeFilter = wrapper.findComponent(TypeFilter)
+    const typeFilter = wrapper.findComponent(TypeFilterDesktop)
 
     await typeFilter.vm.$emit('update:modelValue', 'fire')
 

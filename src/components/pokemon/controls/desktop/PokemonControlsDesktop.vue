@@ -1,6 +1,14 @@
 <template>
   <div class="pokemon-controls-desktop">
     <div class="pokemon-controls-desktop__wrapper-top">
+      <div class="pokemon-controls-desktop__info">
+        <span v-if="hasActiveFilters" class="pokemon-controls-desktop__result-count">
+          Found {{ totalResults }} Pokémon
+        </span>
+        <span v-else class="pokemon-controls-desktop__total-count">
+          {{ totalResults }} Pokémon available
+        </span>
+      </div>
       <div class="pokemon-controls-desktop__controls">
         <button
           class="pokemon-controls-desktop__clear-btn"
@@ -16,14 +24,6 @@
       </div>
     </div>
     <div class="pokemon-controls-desktop__wrapper-bot">
-      <div class="pokemon-controls-desktop__info">
-        <span v-if="hasActiveFilters" class="pokemon-controls-desktop__result-count">
-          Found {{ totalResults }} Pokémon
-        </span>
-        <span v-else class="pokemon-controls-desktop__total-count">
-          {{ totalResults }} Pokémon available
-        </span>
-      </div>
       <div class="pokemon-controls-desktop__filter">
         <TypeFilterDesktop v-model="selectedType" @update:model-value="handleTypeChange" />
       </div>
@@ -101,7 +101,7 @@ const hasActiveFilters = computed(() => props.searchQuery !== '' || props.select
 
 .pokemon-controls-desktop__wrapper-top {
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
   align-items: center;
   gap: 16px;
   padding: 0;
@@ -109,8 +109,8 @@ const hasActiveFilters = computed(() => props.searchQuery !== '' || props.select
 }
 
 .pokemon-controls-desktop__wrapper-bot {
-  display: flex;
-  justify-content: space-between;
+  max-width: 100%;
+  width: 100%;
   align-items: center;
 }
 

@@ -2,7 +2,7 @@
   <div class="type-filter-desktop">
     <div class="type-filter-desktop__chips">
       <TypeChip
-        v-for="type in pokemonTypes"
+        v-for="type in POKEMON_TYPES"
         :key="type"
         :type="type"
         :active="selectedType === type"
@@ -15,6 +15,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { PokemonTypeName } from '@/types/pokemon'
+import { POKEMON_TYPES } from '@/types/pokemon'
 import TypeChip from '../TypeChip.vue'
 
 interface Props {
@@ -29,27 +30,6 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const selectedType = ref(props.modelValue)
-
-const pokemonTypes: PokemonTypeName[] = [
-  'normal',
-  'fire',
-  'water',
-  'grass',
-  'electric',
-  'ice',
-  'fighting',
-  'poison',
-  'ground',
-  'flying',
-  'psychic',
-  'bug',
-  'rock',
-  'ghost',
-  'dragon',
-  'dark',
-  'steel',
-  'fairy',
-]
 
 watch(
   () => props.modelValue,
@@ -77,6 +57,7 @@ const handleTypeClick = (type: PokemonTypeName) => {
 
 .type-filter-desktop__chips {
   display: flex;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;

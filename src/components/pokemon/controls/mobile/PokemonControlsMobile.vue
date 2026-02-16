@@ -52,8 +52,6 @@ const selectedType = ref(props.selectedType)
 
 const debouncedSearch = useDebounce(localSearch, DEBOUNCE_DELAYS.SEARCH)
 
-const isTypePanelOpen = ref(false)
-
 watch(debouncedSearch, (newValue) => {
   emit('search', newValue)
 })

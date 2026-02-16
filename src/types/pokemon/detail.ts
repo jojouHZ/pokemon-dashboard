@@ -34,3 +34,24 @@ export type PokemonTypeName =
   | 'dark'
   | 'steel'
   | 'fairy'
+
+export const POKEMON_TYPES: readonly PokemonTypeName[] = [
+  'normal',
+  'fire',
+  'water',
+  'grass',
+  'electric',
+  'ice',
+  'fighting',
+  'poison',
+  'ground',
+  'flying',
+  'psychic',
+  'bug',
+  'rock',
+  'ghost',
+  'dragon',
+  'dark',
+  'steel',
+  'fairy',
+] as const

@@ -31,7 +31,7 @@
       <div v-if="isExpanded" class="type-filter-mobile__chips-wrapper">
         <div class="type-filter-mobile__chips">
           <TypeChip
-            v-for="type in pokemonTypes"
+            v-for="type in POKEMON_TYPES"
             :key="type"
             :type="type"
             :active="selectedType === type"
@@ -46,6 +46,7 @@
 <script setup lang="ts">
 import { ref, watch, capitalize } from 'vue'
 import type { PokemonTypeName } from '@/types/pokemon'
+import { POKEMON_TYPES } from '@/types/pokemon'
 import TypeChip from '../TypeChip.vue'
 
 interface Props {
@@ -62,27 +63,6 @@ const emit = defineEmits<Emits>()
 const selectedType = ref(props.modelValue)
 const isExpanded = ref(false)
 
-const pokemonTypes: PokemonTypeName[] = [
-  'normal',
-  'fire',
-  'water',
-  'grass',
-  'electric',
-  'ice',
-  'fighting',
-  'poison',
-  'ground',
-  'flying',
-  'psychic',
-  'bug',
-  'rock',
-  'ghost',
-  'dragon',
-  'dark',
-  'steel',
-  'fairy',
-]
-
 watch(
   () => props.modelValue,
   (newVal) => {
@@ -95,15 +75,12 @@ const toggleExpanded = () => {
 }
 
 const handleTypeClick = (type: PokemonTypeName) => {
-  // Toggle: если уже выбран — deselect и закрыть спойлер
   if (selectedType.value === type) {
     selectedType.value = null
     emit('update:modelValue', null)
-    isExpanded.value = false
   } else {
     selectedType.value = type
     emit('update:modelValue', type)
-    isExpanded.value = false // закрываем после выбора
   }
 }
 </script>
@@ -111,6 +88,8 @@ const handleTypeClick = (type: PokemonTypeName) => {
 <style scoped lang="scss">
 .type-filter-mobile {
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .type-filter-mobile__toggle {
@@ -163,18 +142,14 @@ const handleTypeClick = (type: PokemonTypeName) => {
 
 .type-filter-mobile__chips-wrapper {
   margin-top: 8px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  width: 100%;
+  max-width: 100%;
 }
 
 .type-filter-mobile__chips {
-  display: flex;
-  gap: 8px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
   padding: 8px 0;
 }
 

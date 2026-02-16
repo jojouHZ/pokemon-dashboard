@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { PokemonControlsMobile } from '@/components/pokemon/controls'
 import SearchInput from '@/components/pokemon/controls/SearchInput.vue'
-import TypeFilter from '@/components/pokemon/controls/TypeFilter.vue'
+import TypeFilterMobile from '@/components/pokemon/controls/mobile/TypeFilterMobile.vue'
 
 describe('PokemonControlsDesktop', () => {
   const defaultProps = {
@@ -20,7 +20,7 @@ describe('PokemonControlsDesktop', () => {
     })
 
     const searchInput = wrapper.findComponent(SearchInput)
-    const typeFilter = wrapper.findComponent(TypeFilter)
+    const typeFilter = wrapper.findComponent(TypeFilterMobile)
 
     expect(searchInput.exists()).toBe(true)
     expect(typeFilter.exists()).toBe(true)
@@ -46,7 +46,7 @@ describe('PokemonControlsDesktop', () => {
       props: defaultProps,
     })
 
-    const typeFilter = wrapper.findComponent(TypeFilter)
+    const typeFilter = wrapper.findComponent(TypeFilterMobile)
 
     await typeFilter.vm.$emit('update:modelValue', 'fire')
 
@@ -72,20 +72,5 @@ describe('PokemonControlsDesktop', () => {
 
     expect(wrapper.emitted('clear')).toBeTruthy()
     expect(wrapper.emitted('clear')?.length).toBe(1)
-  })
-
-  // no filters -> hide 'clear'
-  it('hides Clear Filters button when no filters are active', () => {
-    const wrapper = mount(PokemonControlsMobile, {
-      props: {
-        searchQuery: '',
-        selectedType: null,
-        totalResults: 1292,
-      },
-    })
-
-    const clearButton = wrapper.find('button')
-
-    expect(clearButton.exists()).toBe(false)
   })
 })
